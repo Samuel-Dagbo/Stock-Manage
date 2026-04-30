@@ -23,12 +23,14 @@ import {
   PanelLeftClose,
   PanelLeft,
   Tag,
-  FileText
+  FileText,
+  BookOpen
 } from "lucide-react"
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "POS", href: "/pos", icon: ShoppingCart },
+  { name: "Tutorial", href: "/tutorial", icon: BookOpen },
 ]
 
 const inventoryNav = [
