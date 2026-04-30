@@ -90,7 +90,7 @@ export function Header({ title }: HeaderProps) {
 
   const handleLogout = async () => {
     try {
-      await signOut({ callbackUrl: "/login" })
+      await signOut({ callbackUrl: "/" })
     } catch (error) {
       console.error("Logout failed:", error)
     }
