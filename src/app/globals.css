@@ -46,43 +46,43 @@
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --popover: #18181b;
-  --popover-foreground: #fafafa;
+  --background: #101113;
+  --foreground: #ededef;
+  --card: #18181c;
+  --card-foreground: #ededef;
+  --popover: #18181c;
+  --popover-foreground: #ededef;
   --primary: #10b981;
   --primary-light: #34d399;
   --primary-foreground: #ffffff;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
+  --secondary: #222228;
+  --secondary-foreground: #ededef;
+  --muted: #222228;
+  --muted-foreground: #9898a0;
+  --accent: #222228;
+  --accent-foreground: #ededef;
   --destructive: #f87171;
-  --destructive-foreground: #18181b;
-  --border: #27272a;
-  --input: #27272a;
+  --destructive-foreground: #18181c;
+  --border: #2c2c32;
+  --input: #2c2c32;
   --ring: #10b981;
   --chart-1: #10b981;
   --chart-2: #8b5cf6;
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
   --chart-5: #3b82f6;
-  --sidebar-bg: #0a0a0b;
-  --sidebar-foreground: #fafafa;
+  --sidebar-bg: #0c0c0e;
+  --sidebar-foreground: #ededef;
   --sidebar-primary: #10b981;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1c1c1e;
-  --sidebar-accent-foreground: #fafafa;
-  --glass-bg: rgba(0, 0, 0, 0.5);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --shadow-ambient: rgba(0, 0, 0, 0.3);
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 10px 40px rgba(0,0,0,0.4);
-  --shadow-card-hover: 0 4px 6px rgba(0,0,0,0.3), 0 20px 60px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.4);
+  --sidebar-accent: #1c1c22;
+  --sidebar-accent-foreground: #ededef;
+  --glass-bg: rgba(24, 24, 28, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --shadow-ambient: rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.2), 0 6px 24px rgba(0,0,0,0.2);
+  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.2);
+  --shadow-glow: 0 0 24px rgba(16, 185, 129, 0.3);
 }
 
 @theme inline {
