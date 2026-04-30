@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
+import { useSession, signOut } from "next-auth/react"
 import { cn } from "@/lib/utils"
 import { useUIStore } from "@/lib/stores/ui-store"
 import { Button } from "@/components/ui/button"
@@ -81,10 +82,15 @@ export function Header({ title }: HeaderProps) {
     { name: "Add Product", icon: Plus, action: () => router.push("/products"), color: "bg-emerald-500" },
   ]
 
+  const getNextTheme = () => {
+    if (theme === "light") return "dark"
+    if (theme === "dark") return "system"
+    return "light"
+  }
+
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/signout", { method: "POST" })
-      router.push("/login")
+      await signOut({ callbackUrl: "/login" })
     } catch (error) {
       console.error("Logout failed:", error)
     }
@@ -162,10 +168,12 @@ export function Header({ title }: HeaderProps) {
           variant="ghost"
           size="icon"
           className="h-9 w-9 rounded-lg"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onClick={() => setTheme(getNextTheme())}
         >
           {theme === "dark" ? (
             <Sun className="h-4 w-4" />
+          ) : theme === "light" ? (
+            <Moon className="h-4 w-4" />
           ) : (
             <Moon className="h-4 w-4" />
           )}
