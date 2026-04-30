@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Store, Mail, Lock, Eye, EyeOff, Loader2, CheckCircle2, Moon, Sun } from "lucide-react"
+import { Store, Mail, Lock, Eye, EyeOff, Loader2, CheckCircle2, Moon, Sun, Sparkles, ArrowRight } from "lucide-react"
 import { signIn } from "next-auth/react"
 import { useUIStore } from "@/lib/stores/ui-store"
 
@@ -66,108 +66,140 @@ export default function LoginPage() {
     signIn("google", { callbackUrl: "/dashboard" })
   }
 
+  const features = [
+    "Real-time inventory tracking",
+    "Point of Sale system",
+    "Sales analytics & reports",
+    "Customer management",
+  ]
+
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 relative gradient-primary p-12 flex-col justify-between">
+    <div className="min-h-screen flex relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[55%] relative bg-gradient-to-br from-[#059669] via-[#10b981] to-[#34d399] p-8 lg:p-12 flex-col justify-between overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40"></div>
+        
         <div className="relative z-10">
-          <div className="flex items-center gap-2.5 text-white">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
+          <div className="flex items-center gap-3 text-white/90">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md border border-white/10">
               <Store className="h-5 w-5" />
             </div>
-            <span className="text-sm font-semibold tracking-tight">Stock Manage</span>
+            <span className="text-lg font-bold tracking-tight">Stock Manage</span>
           </div>
         </div>
 
-        <div className="relative z-10">
-          <h1 className="text-[28px] font-bold text-white mb-3">
-            Welcome back
-          </h1>
-          <p className="text-white/70 text-[13px] max-w-sm leading-relaxed">
-            Sign in to manage your inventory, process sales, and grow your business.
-          </p>
+        <div className="relative z-10 space-y-8">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
+              Smart Inventory<br />Management
+            </h1>
+            <p className="text-white/70 text-base max-w-md leading-relaxed">
+              Streamline your business operations with powerful inventory tracking, POS, and analytics tools.
+            </p>
+          </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-3">
-            {[
-              { label: "Active Users", value: "500+" },
-              { label: "Stores", value: "1,200+" },
-              { label: "Transactions", value: "2M+" },
-              { label: "Up-time", value: "99.9%" },
-            ].map((stat, i) => (
-              <div key={i} className="bg-white/10 backdrop-blur rounded-lg p-3.5">
-                <p className="text-sm font-bold text-white">{stat.value}</p>
-                <p className="text-white/60 text-[11px] mt-0.5">{stat.label}</p>
+          <div className="grid grid-cols-2 gap-4">
+            {features.map((feature, i) => (
+              <div key={i} className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/20">
+                  <Sparkles className="h-3.5 w-3.5 text-white" />
+                </div>
+                <span className="text-white/90 text-[13px] font-medium">{feature}</span>
               </div>
             ))}
           </div>
+
+          <div className="flex items-center gap-6 pt-4">
+            <div className="flex -space-x-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className={`h-9 w-9 rounded-full border-2 border-[#059669] bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center text-white text-xs font-medium`}>
+                  {String.fromCharCode(64 + i)}
+                </div>
+              ))}
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">Trusted by 500+ businesses</p>
+              <p className="text-white/60 text-xs">Across Ghana & West Africa</p>
+            </div>
+          </div>
         </div>
 
-        <p className="relative z-10 text-white/50 text-[11px]">
-          &copy; {new Date().getFullYear()} Stock Manage. All rights reserved.
-        </p>
+        <div className="relative z-10 flex items-center justify-between">
+          <p className="text-white/50 text-xs">© {new Date().getFullYear()} Stock Manage</p>
+          <div className="flex items-center gap-6">
+            <span className="text-white/60 text-xs">Privacy</span>
+            <span className="text-white/60 text-xs">Terms</span>
+          </div>
+        </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary text-primary-foreground">
-                <Store className="h-4 w-4" />
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-muted/30 via-transparent to-muted/20 pointer-events-none"></div>
+        
+        <div className="w-full max-w-md relative z-10">
+          <div className="lg:hidden flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary text-primary-foreground shadow-lg shadow-primary/20">
+                <Store className="h-5 w-5" />
               </div>
-              <span className="text-sm font-semibold">Stock Manage</span>
+              <span className="text-base font-bold">Stock Manage</span>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setTheme(getNextTheme())}
+              className="rounded-lg"
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           </div>
 
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-sm font-semibold">Sign in</CardTitle>
-              <CardDescription className="text-[13px]">
-                Enter your credentials to access your account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="mb-8 hidden lg:block">
+            <h2 className="text-2xl font-bold mb-2">Welcome back</h2>
+            <p className="text-muted-foreground text-sm">Enter your credentials to access your account</p>
+          </div>
+
+          <Card className="border-border/60 shadow-card hover:shadow-card-hover transition-all duration-300">
+            <CardContent className="pt-6">
               {registered && (
-                <div className="mb-3.5 p-2.5 rounded-md bg-success/10 text-success text-[13px] flex items-center gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                <div className="mb-4 p-3 rounded-lg bg-success-subtle/50 border border-success/20 text-success text-sm flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
                   Account created! Please wait for admin approval.
                 </div>
               )}
               {error && (
-                <div className="mb-3.5 p-2.5 rounded-md bg-destructive/10 text-destructive text-[13px]">
+                <div className="mb-4 p-3 rounded-lg bg-destructive/5 border border-destructive/20 text-destructive text-sm">
                   {error}
                 </div>
               )}
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-[13px]">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                  <div className="relative group">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                      <Mail className="h-4 w-4" />
+                    </div>
                     <Input
                       id="email"
                       type="email"
                       placeholder="you@example.com"
-                      className="pl-9 h-8 text-[13px]"
+                      className="pl-10 h-11"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
                     />
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="password" className="text-[13px]">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                  <div className="relative group">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 group-focus-within:text-primary transition-colors">
+                      <Lock className="h-4 w-4" />
+                    </div>
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      className="pl-9 pr-9 h-8 text-[13px]"
+                      placeholder="••••••••"
+                      className="pl-10 pr-10 h-11"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       required
@@ -175,42 +207,45 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-1.5 text-[13px]">
-                    <input type="checkbox" className="rounded border-input h-3.5 w-3.5" />
-                    <span>Remember me</span>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" className="rounded border-border h-4 w-4" />
+                    <span className="text-muted-foreground">Remember me</span>
                   </label>
-                  <Link href="/forgot-password" className="text-[13px] text-primary hover:underline">
+                  <Link href="/forgot-password" className="text-sm text-primary hover:underline font-medium">
                     Forgot password?
                   </Link>
                 </div>
-                <Button type="submit" size="sm" className="w-full" disabled={loading}>
+                <Button type="submit" size="lg" className="w-full h-11" disabled={loading}>
                   {loading ? (
                     <>
-                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Signing in...
                     </>
                   ) : (
-                    "Sign in"
+                    <>
+                      Sign in
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
                   )}
                 </Button>
               </form>
 
-              <div className="relative my-5">
+              <div className="relative my-6">
                 <Separator />
-                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-[11px] text-muted-foreground">
+                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">
                   or continue with
                 </span>
               </div>
 
-              <Button variant="outline" size="sm" className="w-full" onClick={handleGoogleLogin}>
-                <svg className="mr-1.5 h-3.5 w-3.5" viewBox="0 0 24 24">
+              <Button variant="outline" size="lg" className="w-full h-11" onClick={handleGoogleLogin}>
+                <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     fill="#4285F4"
@@ -228,18 +263,22 @@ export default function LoginPage() {
                     fill="#EA4335"
                   />
                 </svg>
-                Google
+                Continue with Google
               </Button>
             </CardContent>
-            <CardFooter className="flex flex-col gap-3">
-              <p className="text-[13px] text-muted-foreground text-center">
+            <CardFooter className="flex flex-col gap-4 pb-6">
+              <p className="text-sm text-muted-foreground text-center">
                 Don&apos;t have an account?{" "}
-                <Link href="/register" className="text-primary font-medium hover:underline">
-                  Sign up
+                <Link href="/register" className="text-primary font-semibold hover:underline">
+                  Sign up free
                 </Link>
               </p>
             </CardFooter>
           </Card>
+
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            By signing in, you agree to our Terms of Service and Privacy Policy
+          </p>
         </div>
       </div>
     </div>

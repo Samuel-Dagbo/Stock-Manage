@@ -1,40 +1,59 @@
+"use client"
+
 import { cn } from "@/lib/utils"
-import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react"
+import { LucideIcon, TrendingUp, TrendingDown, Minus } from "lucide-react"
 
 interface StatCardProps {
   title: string
   value: string
   change?: number
   trend?: "up" | "down" | "neutral"
-  icon: any
+  icon: LucideIcon
   iconClassName?: string
   className?: string
 }
 
 export function StatCard({ title, value, change, trend = "neutral", icon: Icon, iconClassName, className }: StatCardProps) {
+  const getTrendIcon = () => {
+    if (trend === "up") return TrendingUp
+    if (trend === "down") return TrendingDown
+    return Minus
+  }
+
+  const getTrendColor = () => {
+    if (trend === "up") return "text-success"
+    if (trend === "down") return "text-destructive"
+    return "text-muted-foreground"
+  }
+
+  const TrendIcon = getTrendIcon()
+
   return (
-    <div className={cn("rounded-xl border border-border bg-card p-4 shadow-xs", className)}>
-      <div className="flex items-center justify-between">
-        <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center", iconClassName || "bg-primary-subtle")}>
-          <Icon className={cn("h-4 w-4", iconClassName ? "" : "text-primary")} />
+    <div className={cn(
+      "relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group",
+      className
+    )}>
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+      
+      <div className="flex items-center justify-between relative z-10">
+        <div className={cn(
+          "h-10 w-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110",
+          iconClassName || "bg-primary-subtle text-primary"
+        )}>
+          <Icon className="h-5 w-5" />
         </div>
-        {change !== undefined && (
-          <div className={cn(
-            "flex items-center gap-0.5 text-[11px] font-semibold",
-            trend === "up" && "text-success",
-            trend === "down" && "text-destructive",
-            trend === "neutral" && "text-muted-foreground"
-          )}>
-            {trend === "up" ? <ArrowUpRight className="h-3 w-3" /> :
-             trend === "down" ? <ArrowDownRight className="h-3 w-3" /> :
-             <Minus className="h-3 w-3" />}
-            {Math.abs(change).toFixed(1)}%
+        
+        {change !== undefined && change !== 0 && (
+          <div className={cn("flex items-center gap-1 text-xs font-medium", getTrendColor())}>
+            <TrendIcon className="h-3 w-3" />
+            <span>{Math.abs(change).toFixed(1)}%</span>
           </div>
         )}
       </div>
-      <div className="mt-3">
-        <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold mt-0.5 tracking-tight">{value}</p>
+
+      <div className="mt-4">
+        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className="text-2xl font-bold mt-1 tracking-tight">{value}</p>
       </div>
     </div>
   )

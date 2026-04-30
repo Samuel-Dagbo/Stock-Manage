@@ -17,7 +17,6 @@ import {
   BarChart3,
   Boxes,
   Store,
-  ChevronLeft,
   Menu,
   X,
   PanelLeftClose,
@@ -68,18 +67,18 @@ function NavItem({ item, isActive, collapsed, onClick }: NavItemProps) {
       href={item.href}
       onClick={onClick}
       className={cn(
-        "group flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
+        "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
         isActive 
-          ? "bg-primary-subtle text-primary" 
-          : "text-muted-foreground hover:bg-accent hover:text-foreground",
+          ? "bg-primary text-primary-foreground shadow-sm" 
+          : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
         collapsed ? "justify-center px-0" : ""
       )}
       title={collapsed ? item.name : undefined}
     >
-      <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+      <item.icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
       {!collapsed && <span>{item.name}</span>}
       {isActive && !collapsed && (
-        <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+        <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary-foreground" />
       )}
     </Link>
   )
@@ -96,7 +95,7 @@ interface NavGroupProps {
 function NavGroup({ title, items, pathname, collapsed, onClick }: NavGroupProps) {
   if (collapsed) {
     return (
-      <div className="flex flex-col items-center gap-0.5 py-1">
+      <div className="flex flex-col items-center gap-1 py-2">
         {items.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
           return (
@@ -105,14 +104,14 @@ function NavGroup({ title, items, pathname, collapsed, onClick }: NavGroupProps)
               href={item.href}
               onClick={onClick}
               className={cn(
-                "group flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150",
+                "group flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200",
                 isActive 
-                  ? "bg-primary-subtle text-primary" 
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm" 
+                  : "text-muted-foreground hover:bg-accent/80 hover:text-foreground"
               )}
               title={item.name}
             >
-              <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+              <item.icon className={cn("h-[18px] w-[18px]", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
             </Link>
           )
         })}
@@ -121,9 +120,9 @@ function NavGroup({ title, items, pathname, collapsed, onClick }: NavGroupProps)
   }
 
   return (
-    <div className="space-y-0.5">
-      <div className="px-3 pt-3 pb-1">
-        <span className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
+    <div className="space-y-1">
+      <div className="px-3 pt-4 pb-2">
+        <span className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider">
           {title}
         </span>
       </div>
@@ -156,96 +155,94 @@ export function Sidebar() {
   }
 
   const sidebarClasses = cn(
-    "fixed left-0 top-0 z-40 h-screen transition-all duration-200 ease-in-out",
-    isMobile ? "w-64" : sidebarCollapsed ? "w-[68px]" : "w-64",
+    "fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-out",
+    isMobile ? "w-72" : sidebarCollapsed ? "w-[72px]" : "w-72",
     isMobile && !sidebarOpen && "-translate-x-full"
   )
 
   return (
     <aside className={sidebarClasses}>
-      <div className="flex h-full flex-col bg-sidebar-bg border-r border-sidebar-border">
-        <div className={cn(
-          "flex h-14 items-center border-b border-sidebar-border px-4",
-          sidebarCollapsed && !isMobile ? "justify-center" : "px-5"
-        )}>
-          {(!sidebarCollapsed || isMobile) && (
-            <Link href="/dashboard" className="flex items-center gap-2.5 group" onClick={handleLinkClick}>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary text-white">
-                <Store className="h-4 w-4" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-sm font-bold tracking-tight">Stock Manage</span>
-              </div>
-            </Link>
-          )}
-          {sidebarCollapsed && !isMobile && (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary text-white">
+      <div className={cn(
+        "flex h-16 items-center border-b border-sidebar-border px-4 bg-sidebar-bg",
+        sidebarCollapsed && !isMobile ? "justify-center" : "px-5"
+      )}>
+        {(!sidebarCollapsed || isMobile) && (
+          <Link href="/dashboard" className="flex items-center gap-3 group" onClick={handleLinkClick}>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary text-white shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
               <Store className="h-4 w-4" />
             </div>
-          )}
-          {isMobile && (
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="ml-auto p-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        <nav className="flex-1 space-y-1 p-3 overflow-y-auto scrollbar-thin">
-          <NavGroup title="Main" items={mainNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
-          <NavGroup title="Inventory" items={inventoryNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
-          <NavGroup title="CRM" items={crmNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
-          <NavGroup title="Finance" items={financeNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
-        </nav>
-
-        <div className="border-t border-sidebar-border p-3 space-y-1">
-          {(!sidebarCollapsed || isMobile) ? (
-            <NavGroup title="System" items={bottomNav} pathname={pathname} collapsed={false} onClick={handleLinkClick} />
-          ) : (
-            <div className="flex flex-col items-center gap-0.5 py-1">
-              {bottomNav.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      "group flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150",
-                      isActive 
-                        ? "bg-primary-subtle text-primary" 
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                    )}
-                    title={item.name}
-                  >
-                    <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-                  </Link>
-                )
-              })}
+            <div className="min-w-0">
+              <span className="text-sm font-bold tracking-tight">Stock Manage</span>
             </div>
-          )}
-          
-          {!isMobile && (
-            <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground transition-all duration-150 w-full",
-                "hover:bg-accent hover:text-foreground",
-                sidebarCollapsed && "justify-center px-0"
-              )}
-            >
-              {sidebarCollapsed ? (
-                <PanelLeft className="h-4 w-4" />
-              ) : (
-                <>
-                  <PanelLeftClose className="h-4 w-4" />
-                  <span>Collapse</span>
-                </>
-              )}
-            </button>
-          )}
-        </div>
+          </Link>
+        )}
+        {sidebarCollapsed && !isMobile && (
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary text-white shadow-lg shadow-primary/20">
+            <Store className="h-4 w-4" />
+          </div>
+        )}
+        {isMobile && (
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="ml-auto p-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+
+      <nav className="flex-1 space-y-0.5 p-3 overflow-y-auto scrollbar-thin bg-sidebar-bg">
+        <NavGroup title="Main" items={mainNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
+        <NavGroup title="Inventory" items={inventoryNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
+        <NavGroup title="CRM" items={crmNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
+        <NavGroup title="Finance" items={financeNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
+      </nav>
+
+      <div className="border-t border-sidebar-border p-3 space-y-1 bg-sidebar-bg">
+        {(!sidebarCollapsed || isMobile) ? (
+          <NavGroup title="System" items={bottomNav} pathname={pathname} collapsed={false} onClick={handleLinkClick} />
+        ) : (
+          <div className="flex flex-col items-center gap-1 py-2">
+            {bottomNav.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "group flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200",
+                    isActive 
+                      ? "bg-primary text-primary-foreground shadow-sm" 
+                      : "text-muted-foreground hover:bg-accent/80 hover:text-foreground"
+                  )}
+                  title={item.name}
+                >
+                  <item.icon className={cn("h-[18px] w-[18px]", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+                </Link>
+              )
+            })}
+          </div>
+        )}
+        
+        {!isMobile && (
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 w-full",
+              "hover:bg-accent/80 hover:text-foreground",
+              sidebarCollapsed && "justify-center px-0"
+            )}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeft className="h-[18px] w-[18px]" />
+            ) : (
+              <>
+                <PanelLeftClose className="h-[18px] w-[18px]" />
+                <span>Collapse</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </aside>
   )

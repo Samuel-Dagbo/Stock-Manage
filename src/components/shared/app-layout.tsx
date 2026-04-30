@@ -34,7 +34,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
       >
         <Header title={title} />
 
-        <main className="p-4 lg:p-6 min-h-[calc(100vh-3.5rem)] overflow-x-hidden">
+        <main className="p-5 lg:p-7 min-h-[calc(100vh-4rem)] overflow-x-hidden">
           <div className="mx-auto max-w-7xl">
             {children}
           </div>

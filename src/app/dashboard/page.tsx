@@ -25,6 +25,8 @@ import {
   CreditCard,
   Zap,
   Target,
+  BarChart3,
+  Activity,
 } from "lucide-react"
 import Link from "next/link"
 import { formatCurrency } from "@/lib/utils"
@@ -38,9 +40,6 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell
 } from "recharts"
 
 interface TopProduct {
@@ -118,39 +117,56 @@ function DashboardSkeleton() {
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="rounded-xl border border-border p-4">
+          <div key={i} className="rounded-xl border border-border/60 bg-card p-5">
             <div className="flex items-center justify-between">
-              <Skeleton className="h-9 w-9 rounded-lg" />
-              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <Skeleton className="h-4 w-16" />
             </div>
-            <div className="mt-3 space-y-1.5">
-              <Skeleton className="h-3 w-20" />
-              <Skeleton className="h-7 w-28" />
+            <div className="mt-4 space-y-2">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-8 w-32" />
             </div>
           </div>
         ))}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-border">
-          <div className="p-5 pb-3 border-b"><Skeleton className="h-4 w-32" /></div>
-          <div className="p-5"><Skeleton className="h-64 w-full rounded-lg" /></div>
+        <div className="rounded-xl border border-border/60 bg-card p-5">
+          <Skeleton className="h-5 w-32 mb-4" />
+          <Skeleton className="h-72 w-full rounded-lg" />
         </div>
-        <div className="rounded-xl border border-border">
-          <div className="p-5 pb-3 border-b"><Skeleton className="h-4 w-32" /></div>
-          <div className="p-5"><Skeleton className="h-64 w-full rounded-lg" /></div>
+        <div className="rounded-xl border border-border/60 bg-card p-5">
+          <Skeleton className="h-5 w-32 mb-4" />
+          <Skeleton className="h-72 w-full rounded-lg" />
         </div>
       </div>
     </div>
   )
 }
 
-const chartTooltipStyle = {
+const chartTooltipStyle: React.CSSProperties = {
   backgroundColor: "var(--card)",
   border: "1px solid var(--border)",
-  borderRadius: "0.5rem",
-  boxShadow: "var(--shadow-md)",
+  borderRadius: "0.75rem",
+  boxShadow: "var(--shadow-lg)",
   fontSize: "12px",
+  padding: "0.75rem 1rem",
+}
+
+function CustomTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    return (
+      <div style={chartTooltipStyle}>
+        <p className="font-semibold text-foreground mb-1">{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} className="text-muted-foreground" style={{ color: entry.color }}>
+            {entry.name === "revenue" ? "Revenue" : "Orders"}: {entry.name === "revenue" ? formatCurrency(entry.value) : entry.value}
+          </p>
+        ))}
+      </div>
+    )
+  }
+  return null
 }
 
 export default function DashboardPage() {
@@ -202,18 +218,7 @@ export default function DashboardPage() {
           const d = new Date(s.createdAt)
           return d >= yesterday && d < now && s.status === "completed"
         })
-        const thisWeekSales = sales.filter((s: any) => {
-          const d = new Date(s.createdAt)
-          return d >= lastWeekStart && s.status === "completed"
-        })
-        const prevWeekSales = sales.filter((s: any) => {
-          const d = new Date(s.createdAt)
-          return d >= prevWeekStart && d < lastWeekStart && s.status === "completed"
-        })
-
-        const todayRevenue = todaySales.reduce((sum: number, s: any) => sum + s.total, 0)
-        const prevDayRevenue = prevDaySales.reduce((sum: number, s: any) => sum + s.total, 0)
-
+        
         const lowStock = products.filter((p: any) => p.stockQuantity <= p.reorderLevel).slice(0, 5)
 
         const productSales: Record<string, { sales: number; revenue: number }> = {}
@@ -246,7 +251,7 @@ export default function DashboardPage() {
           paymentTotals[s.paymentMethod] = (paymentTotals[s.paymentMethod] || 0) + s.total
         })
         const totalPayment = Object.values(paymentTotals).reduce((a, b) => a + b, 0) || 1
-        const paymentColors: Record<string, string> = { cash: "#059669", momo: "#7c3aed", card: "#d97706" }
+        const paymentColors: Record<string, string> = { cash: "#059669", momo: "#8b5cf6", card: "#f59e0b" }
         const paymentBreakdown = Object.entries(paymentTotals).map(([method, amount]) => ({
           name: method.charAt(0).toUpperCase() + method.slice(1),
           value: Math.round((amount / totalPayment) * 100),
@@ -254,11 +259,11 @@ export default function DashboardPage() {
         }))
 
         setData({
-          revenue: todayRevenue,
+          revenue: todaySales.reduce((sum: number, s: any) => sum + s.total, 0),
           orders: todaySales.length,
           products: products.length,
           customers: customersData.customers?.length || 0,
-          revenueChange: calculateChange(todayRevenue, prevDayRevenue),
+          revenueChange: calculateChange(todaySales.reduce((sum: number, s: any) => sum + s.total, 0), prevDaySales.reduce((sum: number, s: any) => sum + s.total, 0)),
           ordersChange: calculateChange(todaySales.length, prevDaySales.length),
           loading: false,
           chartData,
@@ -299,21 +304,21 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight">Welcome back</h2>
-            <p className="text-[13px] text-muted-foreground mt-0.5">
+            <h2 className="text-xl font-bold tracking-tight">Welcome back</h2>
+            <p className="text-sm text-muted-foreground mt-1">
               Here&apos;s what&apos;s happening with your store today.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Link href="/reports">
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <TrendingUp className="h-3.5 w-3.5" />
+              <Button variant="outline" size="sm" className="gap-2">
+                <BarChart3 className="h-4 w-4" />
                 Reports
               </Button>
             </Link>
             <Link href="/pos">
-              <Button size="sm" className="gap-1.5">
-                <Zap className="h-3.5 w-3.5" />
+              <Button size="sm" className="gap-2">
+                <Zap className="h-4 w-4" />
                 New Sale
               </Button>
             </Link>
@@ -321,73 +326,104 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Today's Revenue"
-            value={formatCurrency(data.revenue)}
-            change={data.revenueChange}
-            trend={data.revenue > 0 ? "up" : "neutral"}
-            icon={DollarSign}
-          />
-          <StatCard
-            title="Orders Today"
-            value={data.orders.toString()}
-            change={data.ordersChange}
-            trend="up"
-            icon={ShoppingCart}
-            iconClassName="bg-info-subtle text-info"
-          />
-          <StatCard
-            title="Total Products"
-            value={data.products.toString()}
-            icon={Package}
-            iconClassName="bg-warning-subtle text-warning"
-          />
-          <StatCard
-            title="Total Customers"
-            value={data.customers.toString()}
-            icon={Users}
-            iconClassName="bg-[#f0f0ff] dark:bg-[#1a1040] text-[#7c3aed]"
-          />
+          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div className="flex items-center justify-between relative z-10">
+              <div className="h-10 w-10 rounded-lg bg-primary-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
+                <DollarSign className="h-5 w-5 text-primary" />
+              </div>
+              {data.revenueChange !== 0 && (
+                <Badge variant={data.revenueChange > 0 ? "success" : "destructive"} className="text-xs">
+                  {data.revenueChange > 0 ? "+" : ""}{data.revenueChange.toFixed(1)}%
+                </Badge>
+              )}
+            </div>
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground">Today&apos;s Revenue</p>
+              <p className="text-2xl font-bold mt-1 tracking-tight">{formatCurrency(data.revenue)}</p>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-info/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div className="flex items-center justify-between relative z-10">
+              <div className="h-10 w-10 rounded-lg bg-info-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ShoppingCart className="h-5 w-5 text-info" />
+              </div>
+              {data.ordersChange !== 0 && (
+                <Badge variant={data.ordersChange > 0 ? "success" : "destructive"} className="text-xs">
+                  {data.ordersChange > 0 ? "+" : ""}{data.ordersChange.toFixed(1)}%
+                </Badge>
+              )}
+            </div>
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground">Orders Today</p>
+              <p className="text-2xl font-bold mt-1 tracking-tight">{data.orders}</p>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-warning/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div className="flex items-center justify-between relative z-10">
+              <div className="h-10 w-10 rounded-lg bg-warning-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Package className="h-5 w-5 text-warning" />
+              </div>
+            </div>
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground">Total Products</p>
+              <p className="text-2xl font-bold mt-1 tracking-tight">{data.products}</p>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#8b5cf6]/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div className="flex items-center justify-between relative z-10">
+              <div className="h-10 w-10 rounded-lg bg-[#8b5cf6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users className="h-5 w-5 text-[#8b5cf6]" />
+              </div>
+            </div>
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground">Total Customers</p>
+              <p className="text-2xl font-bold mt-1 tracking-tight">{data.customers}</p>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
+          <Card className="border-border/60">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-md bg-primary-subtle flex items-center justify-center">
-                    <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-primary-subtle flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <CardTitle>Revenue Overview</CardTitle>
-                    <CardDescription>Last 7 days</CardDescription>
+                    <CardTitle className="text-base">Revenue Overview</CardTitle>
+                    <CardDescription className="text-xs">Last 7 days performance</CardDescription>
                   </div>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="h-64 w-full -ml-2">
+              <div className="h-72 w-full -ml-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.chartData.length > 0 ? data.chartData : [{ name: "No Data", revenue: 0, orders: 0 }]}>
                     <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.15}/>
+                      <linearGradient id="colorRevenueNew" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2}/>
                         <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
                     <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      contentStyle={chartTooltipStyle}
-                      labelStyle={{ color: "var(--foreground)", fontWeight: 600 }}
-                    />
+                    <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => `₵${value}`} />
+                    <Tooltip content={<CustomTooltip />} />
                     <Area
                       type="monotone"
                       dataKey="revenue"
                       stroke="var(--primary)"
-                      strokeWidth={2}
-                      fill="url(#colorRevenue)"
+                      strokeWidth={2.5}
+                      fill="url(#colorRevenueNew)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -395,20 +431,20 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-border/60">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-md bg-[#f0f0ff] dark:bg-[#1a1040] flex items-center justify-center">
-                    <Target className="h-3.5 w-3.5 text-[#7c3aed]" />
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-[#8b5cf6]/10 flex items-center justify-center">
+                    <Target className="h-4 w-4 text-[#8b5cf6]" />
                   </div>
                   <div>
-                    <CardTitle>Top Products</CardTitle>
-                    <CardDescription>Best selling items</CardDescription>
+                    <CardTitle className="text-base">Top Products</CardTitle>
+                    <CardDescription className="text-xs">Best selling items this week</CardDescription>
                   </div>
                 </div>
                 <Link href="/reports">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground text-[12px] gap-1">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground text-xs gap-1">
                     View All <ChevronRight className="h-3 w-3" />
                   </Button>
                 </Link>
@@ -416,20 +452,22 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               {data.topProducts.length === 0 ? (
-                <EmptyState
-                  icon={Package}
-                  title="No sales data yet"
-                  description="Start making sales to see top products"
-                />
+                <div className="h-72 flex items-center justify-center">
+                  <EmptyState
+                    icon={Package}
+                    title="No sales data yet"
+                    description="Start making sales to see top products"
+                  />
+                </div>
               ) : (
-                <div className="h-64 w-full -ml-2">
+                <div className="h-72 w-full -ml-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.topProducts} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
-                      <XAxis type="number" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                      <YAxis dataKey="name" type="category" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
-                      <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: "var(--foreground)", fontWeight: 600 }} />
-                      <Bar dataKey="revenue" fill="var(--chart-2)" radius={[0, 3, 3, 0]} barSize={16} />
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" opacity={0.5} />
+                      <XAxis type="number" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => `₵${value}`} />
+                      <YAxis dataKey="name" type="category" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
+                      <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: "var(--foreground)", fontWeight: 600 }} formatter={(value) => formatCurrency(value as number)} />
+                      <Bar dataKey="revenue" fill="var(--chart-2)" radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -439,20 +477,20 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
+          <Card className="border-border/60">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-md bg-warning-subtle flex items-center justify-center">
-                    <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-warning-subtle flex items-center justify-center">
+                    <AlertTriangle className="h-4 w-4 text-warning" />
                   </div>
                   <div>
-                    <CardTitle>Low Stock Alerts</CardTitle>
-                    <CardDescription>{data.lowStockItems.length} items need restocking</CardDescription>
+                    <CardTitle className="text-base">Low Stock Alerts</CardTitle>
+                    <CardDescription className="text-xs">{data.lowStockItems.length} items need restocking</CardDescription>
                   </div>
                 </div>
                 <Link href="/inventory">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground text-[12px] gap-1">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground text-xs gap-1">
                     Manage <ChevronRight className="h-3 w-3" />
                   </Button>
                 </Link>
@@ -460,33 +498,35 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               {data.lowStockItems.length === 0 ? (
-                <EmptyState
-                  icon={TrendingUp}
-                  title="All stock levels are healthy"
-                  description="No items below reorder level"
-                />
+                <div className="h-40 flex items-center justify-center">
+                  <EmptyState
+                    icon={TrendingUp}
+                    title="All stock levels healthy"
+                    description="No items below reorder level"
+                  />
+                </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {data.lowStockItems.slice(0, 4).map((item, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-muted/50 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-md bg-warning-subtle flex items-center justify-center">
+                        <div className="h-9 w-9 rounded-lg bg-warning-subtle flex items-center justify-center">
                           <Package className="h-4 w-4 text-warning" />
                         </div>
                         <div>
-                          <p className="text-[13px] font-medium">{item.name}</p>
-                          <p className="text-[11px] text-muted-foreground">Reorder at {item.reorder}+ units</p>
+                          <p className="text-sm font-medium">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">Reorder at {item.reorder}+ units</p>
                         </div>
                       </div>
-                      <Badge variant="warning">{item.current} left</Badge>
+                      <Badge variant="warning" className="text-xs">{item.current} left</Badge>
                     </div>
                   ))}
                   {data.lowStockItems.length > 4 && (
                     <Link href="/inventory" className="block pt-1">
-                      <Button variant="outline" size="sm" className="w-full text-[12px] gap-1">
+                      <Button variant="outline" size="sm" className="w-full text-xs gap-2">
                         View {data.lowStockItems.length - 4} more items
                         <ArrowRight className="h-3 w-3" />
                       </Button>
@@ -497,38 +537,40 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-border/60">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-md bg-info-subtle flex items-center justify-center">
-                    <CreditCard className="h-3.5 w-3.5 text-info" />
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-info-subtle flex items-center justify-center">
+                    <CreditCard className="h-4 w-4 text-info" />
                   </div>
                   <div>
-                    <CardTitle>Payment Methods</CardTitle>
-                    <CardDescription>Breakdown by method</CardDescription>
+                    <CardTitle className="text-base">Payment Methods</CardTitle>
+                    <CardDescription className="text-xs">Breakdown by method</CardDescription>
                   </div>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {data.paymentBreakdown.length === 0 ? (
-                <EmptyState
-                  icon={CreditCard}
-                  title="No payment data yet"
-                  description="Complete sales to see payment breakdown"
-                />
+                <div className="h-40 flex items-center justify-center">
+                  <EmptyState
+                    icon={CreditCard}
+                    title="No payment data yet"
+                    description="Complete sales to see payment breakdown"
+                  />
+                </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {data.paymentBreakdown.map((method, i) => (
-                    <div key={i} className="space-y-1.5">
+                    <div key={i} className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[13px] font-medium">{method.name}</span>
-                        <span className="text-[13px] font-semibold">{method.value}%</span>
+                        <span className="text-sm font-medium">{method.name}</span>
+                        <span className="text-sm font-semibold">{method.value}%</span>
                       </div>
-                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                      <div className="h-2.5 rounded-full bg-muted overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-500"
+                          className="h-full rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${method.value}%`, backgroundColor: method.color }}
                         />
                       </div>
@@ -540,20 +582,20 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <Card>
+        <Card className="border-border/60">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-md bg-success-subtle flex items-center justify-center">
-                  <Receipt className="h-3.5 w-3.5 text-success" />
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-success-subtle flex items-center justify-center">
+                  <Receipt className="h-4 w-4 text-success" />
                 </div>
                 <div>
-                  <CardTitle>Recent Transactions</CardTitle>
-                  <CardDescription>Latest sales activity</CardDescription>
+                  <CardTitle className="text-base">Recent Transactions</CardTitle>
+                  <CardDescription className="text-xs">Latest sales activity</CardDescription>
                 </div>
               </div>
               <Link href="/sales">
-                <Button variant="ghost" size="sm" className="text-muted-foreground text-[12px] gap-1">
+                <Button variant="ghost" size="sm" className="text-muted-foreground text-xs gap-1">
                   View All <ChevronRight className="h-3 w-3" />
                 </Button>
               </Link>
@@ -561,40 +603,40 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {data.recentSales.length === 0 ? (
-              <EmptyState
-                icon={Receipt}
-                title="No recent transactions"
-                description="Start by making your first sale"
-                action={
-                  <Link href="/pos">
-                    <Button size="sm" className="gap-1.5">
-                      <Plus className="h-3.5 w-3.5" />
-                      New Sale
-                    </Button>
-                  </Link>
-                }
-              />
+              <div className="h-40 flex items-center justify-center">
+                <EmptyState
+                  icon={Receipt}
+                  title="No recent transactions"
+                  description="Start by making your first sale"
+                  action={
+                    <Link href="/pos">
+                      <Button size="sm" className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        New Sale
+                      </Button>
+                    </Link>
+                  }
+                />
+              </div>
             ) : (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-border/60">
                 {data.recentSales.map((transaction, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+                    className="flex items-center justify-between py-4 first:pt-0 last:pb-0 hover:bg-muted/30 transition-colors px-2 -mx-2 rounded-lg"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-md bg-primary-subtle flex items-center justify-center">
-                        <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-lg bg-primary-subtle flex items-center justify-center">
+                        <ShoppingCart className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-[13px] font-medium font-mono">{transaction.receiptNumber}</p>
-                        <p className="text-[11px] text-muted-foreground">{transaction.customer}</p>
+                        <p className="text-sm font-semibold font-mono">{transaction.receiptNumber}</p>
+                        <p className="text-xs text-muted-foreground">{transaction.customer}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-[13px] font-semibold">{formatCurrency(transaction.total)}</p>
-                      <Badge variant="success" className="text-[10px]">
-                        {transaction.status}
-                      </Badge>
+                      <p className="text-sm font-bold">{formatCurrency(transaction.total)}</p>
+                      <Badge variant="success" className="text-[10px] mt-1">{transaction.status}</Badge>
                     </div>
                   </div>
                 ))}
