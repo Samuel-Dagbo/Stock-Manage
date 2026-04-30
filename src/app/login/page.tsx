@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Zap, Mail, Lock, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react"
+import { Zap, Mail, Lock, Eye, EyeOff, Loader2, CheckCircle2, Moon, Sun } from "lucide-react"
 import { motion } from "framer-motion"
 import { signIn } from "next-auth/react"
+import { useUIStore } from "@/lib/stores/ui-store"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,6 +24,13 @@ export default function LoginPage() {
     email: "",
     password: "",
   })
+  const { theme, setTheme } = useUIStore()
+  
+  const getNextTheme = () => {
+    if (theme === "light") return "dark"
+    if (theme === "dark") return "system"
+    return "light"
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -110,11 +118,20 @@ export default function LoginPage() {
           transition={{ duration: 0.3 }}
           className="w-full max-w-md"
         >
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Zap className="h-4 w-4" />
+          <div className="lg:hidden flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Zap className="h-4 w-4" />
+              </div>
+              <span className="text-lg font-bold">Stock Manage</span>
             </div>
-            <span className="text-lg font-bold">Stock Manage</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(getNextTheme())}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
           </div>
 
           <Card className="border-0 shadow-none">

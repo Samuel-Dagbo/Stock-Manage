@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useUIStore } from "@/lib/stores/ui-store"
 import { 
   ArrowRight, 
   TrendingUp, 
@@ -15,7 +16,9 @@ import {
   CreditCard,
   Shield,
   Zap,
-  Globe
+  Globe,
+  Moon,
+  Sun
 } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -71,6 +74,14 @@ const testimonials = [
 ]
 
 export default function LandingPage() {
+  const { theme, setTheme } = useUIStore()
+  
+  const getNextTheme = () => {
+    if (theme === "light") return "dark"
+    if (theme === "dark") return "system"
+    return "light"
+  }
+  
   return (
     <div className="min-h-screen bg-background">
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
@@ -91,6 +102,13 @@ export default function LandingPage() {
               </Link>
             </div>
             <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(getNextTheme())}
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
               <Link href="/login">
                 <Button variant="ghost">Log in</Button>
               </Link>

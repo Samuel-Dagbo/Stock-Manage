@@ -2,21 +2,29 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Zap, Clock, Mail, ArrowLeft } from "lucide-react"
+import { Zap, Clock, Mail, ArrowLeft, Moon, Sun } from "lucide-react"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { useUIStore } from "@/lib/stores/ui-store"
 
 export default function PendingApprovalPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { theme, setTheme } = useUIStore()
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login")
     }
   }, [status, router])
+
+  const getNextTheme = () => {
+    if (theme === "light") return "dark"
+    if (theme === "dark") return "system"
+    return "light"
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
@@ -50,7 +58,7 @@ export default function PendingApprovalPage() {
             <Button 
               variant="outline" 
               className="w-full border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => signOut({ callbackUrl: "/" })}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Sign Out
