@@ -22,7 +22,8 @@ import {
   X,
   PanelLeftClose,
   PanelLeft,
-  Tag
+  Tag,
+  FileText
 } from "lucide-react"
 
 const mainNav = [
@@ -45,6 +46,7 @@ const crmNav = [
 const financeNav = [
   { name: "Expenses", href: "/expenses", icon: Wallet },
   { name: "Reports", href: "/reports", icon: BarChart3 },
+  { name: "Audits", href: "/audits", icon: FileText },
 ]
 
 const bottomNav = [
