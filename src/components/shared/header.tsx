@@ -23,24 +23,22 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { 
-  Search, 
-  Bell, 
-  Command, 
-  Sun,
-  Moon,
-  LogOut,
-  User,
-  Settings,
-  ShoppingCart,
-  Package,
-  TrendingUp,
-  Plus,
-  Menu,
-  Calendar,
-  DollarSign,
-  Clock,
+  Search,  
+  Bell,  
+  Command,  
+  LogOut,  
+  User,  
+  Settings,  
+  ShoppingCart,  
+  Package,  
+  TrendingUp,  
+  Plus,  
+  Menu,  
+  Calendar, 
+  Clock, 
   PanelLeft
 } from "lucide-react"
+import { ThemeSwitcher } from "./theme-switcher"
 
 interface HeaderProps {
   title?: string
@@ -64,7 +62,7 @@ const mockNotifications: Notification[] = [
 export function Header({ title }: HeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, setTheme, setSidebarOpen } = useUIStore()
+  const { setSidebarOpen } = useUIStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobile, setIsMobile] = useState(false)
 
@@ -81,12 +79,6 @@ export function Header({ title }: HeaderProps) {
     { name: "New Sale", icon: ShoppingCart, action: () => router.push("/pos"), color: "bg-primary" },
     { name: "Add Product", icon: Plus, action: () => router.push("/products"), color: "bg-emerald-500" },
   ]
-
-  const getNextTheme = () => {
-    if (theme === "light") return "dark"
-    if (theme === "dark") return "system"
-    return "light"
-  }
 
   const handleLogout = async () => {
     try {
@@ -163,21 +155,8 @@ export function Header({ title }: HeaderProps) {
           <ShoppingCart className="h-4 w-4" />
         </Button>
 
-        {/* Theme Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 rounded-lg"
-          onClick={() => setTheme(getNextTheme())}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4" />
-          ) : theme === "light" ? (
-            <Moon className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
-        </Button>
+        {/* Theme Switcher */}
+        <ThemeSwitcher />
 
         {/* Notifications */}
         <Popover>
