@@ -1,15 +1,21 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useUIStore } from "@/lib/stores/ui-store"
 
 export function ThemeProvider() {
   const { theme } = useUIStore()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    
     const root = document.documentElement
     
-    // Handle system preference
     if (theme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
@@ -20,7 +26,7 @@ export function ThemeProvider() {
       root.classList.remove("light", "dark")
       root.classList.add(theme)
     }
-  }, [theme])
+  }, [theme, mounted])
 
   return null
 }
