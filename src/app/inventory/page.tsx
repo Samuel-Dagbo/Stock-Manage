@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,10 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { 
-  Search, 
-  Plus, 
-  Package, 
+import {
+  Package,
   AlertTriangle,
   TrendingUp,
   TrendingDown,
@@ -28,10 +26,13 @@ import {
   Pencil,
   Upload,
   Image as ImageIcon,
-  X
+  X,
 } from "lucide-react"
-import { formatCurrency, formatDate, formatRelativeTime } from "@/lib/utils"
+import { formatCurrency, formatRelativeTime } from "@/lib/utils"
 import { AppLayout } from "@/components/shared/app-layout"
+import { StatCard } from "@/components/shared/stat-card"
+import { SearchInput } from "@/components/shared/search-input"
+import { EmptyState } from "@/components/shared/empty-state"
 
 interface Product {
   _id: string
@@ -61,7 +62,7 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  
+
   const [showAdjustmentModal, setShowAdjustmentModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [saving, setSaving] = useState(false)
@@ -152,11 +153,11 @@ export default function InventoryPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ok":
-        return <Badge className="bg-green-500 text-white">In Stock</Badge>
+        return <Badge variant="success">In Stock</Badge>
       case "low":
-        return <Badge className="bg-amber-500 text-white">Low Stock</Badge>
+        return <Badge variant="warning">Low Stock</Badge>
       case "out":
-        return <Badge className="bg-red-500 text-white">Out of Stock</Badge>
+        return <Badge variant="destructive">Out of Stock</Badge>
       default:
         return null
     }
@@ -165,13 +166,13 @@ export default function InventoryPage() {
   const getMovementIcon = (type: string) => {
     switch (type) {
       case "stock_in":
-        return <TrendingUp className="h-4 w-4 text-green-500" />
+        return <TrendingUp className="h-4 w-4 text-success" />
       case "stock_out":
-        return <TrendingDown className="h-4 w-4 text-red-500" />
+        return <TrendingDown className="h-4 w-4 text-destructive" />
       case "adjustment":
-        return <ArrowUpDown className="h-4 w-4 text-amber-500" />
+        return <ArrowUpDown className="h-4 w-4 text-warning" />
       case "sale":
-        return <TrendingDown className="h-4 w-4 text-red-500" />
+        return <TrendingDown className="h-4 w-4 text-destructive" />
       default:
         return null
     }
@@ -211,363 +212,302 @@ export default function InventoryPage() {
 
   return (
     <AppLayout title="Inventory">
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold">Inventory</h2>
-          <p className="text-muted-foreground">Track stock levels and movements</p>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Products</p>
-                <p className="text-2xl font-bold">{products.length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Package className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Inventory Value</p>
-                <p className="text-2xl font-bold">{formatCurrency(totalValue)}</p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-violet-500/10 flex items-center justify-center">
-                <Package className="h-6 w-6 text-violet-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className={lowStockCount > 0 ? "border-amber-500/50" : ""}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Low Stock</p>
-                <p className="text-2xl font-bold">{lowStockCount}</p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-amber-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className={outOfStockCount > 0 ? "border-red-500/50" : ""}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Out of Stock</p>
-                <p className="text-2xl font-bold">{outOfStockCount}</p>
-              </div>
-              <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-red-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Stock Levels</CardTitle>
-                <div className="flex gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Search..."
-                      className="pl-10 w-[200px]"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[130px]">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="ok">In Stock</SelectItem>
-                      <SelectItem value="low">Low Stock</SelectItem>
-                      <SelectItem value="out">Out of Stock</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                </div>
-              ) : filteredProducts.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground">No products found</p>
-              ) : (
-                <div className="space-y-3">
-                  {filteredProducts.map((product) => {
-const status = getStockStatus(product.stockQuantity, product.reorderLevel)
-                    return (
-                      <div key={product._id} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                            <Package className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">{product.name}</p>
-                            <p className="text-xs text-muted-foreground">{product.sku}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="font-medium">{product.stockQuantity}</p>
-                            <p className="text-xs text-muted-foreground">Reorder at {product.reorderLevel}</p>
-                          </div>
-                          {getStatusBadge(status)}
-                          <Button size="sm" variant="outline" onClick={() => openEditModal(product)}>
-                            <Pencil className="h-3 w-3 mr-1" />
-                            Edit
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => openAdjustmentModal(product)}>
-                            Adjust
-                          </Button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-4">
+          <StatCard title="Total Products" value={String(products.length)} icon={Package} />
+          <StatCard title="Inventory Value" value={formatCurrency(totalValue)} icon={Package} iconClassName="bg-info-subtle text-info" />
+          <StatCard title="Low Stock" value={String(lowStockCount)} icon={AlertTriangle} iconClassName="bg-warning-subtle text-warning" />
+          <StatCard title="Out of Stock" value={String(outOfStockCount)} icon={AlertTriangle} iconClassName="bg-destructive/10 text-destructive" />
         </div>
 
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Recent Movements</CardTitle>
-              <CardDescription>Stock activity log</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                </div>
-              ) : movements.length === 0 ? (
-                <p className="text-center py-4 text-muted-foreground text-sm">No movements yet</p>
-              ) : (
-                <div className="space-y-4">
-                  {movements.slice(0, 10).map((movement) => (
-                    <div key={movement._id} className="flex items-start gap-3">
-                      <div className="mt-0.5">{getMovementIcon(movement.type)}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{movement.productName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {movement.type === "stock_in" && "+"}
-                          {movement.type === "stock_out" && "-"}
-                          {movement.type === "adjustment" && (movement.quantity > 0 ? "+" : "-")}
-                          {movement.type === "sale" && "-"}
-                          {Math.abs(movement.quantity)} units · {movement.reference}
-                        </p>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {formatRelativeTime(movement.date)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Stock Adjustment Modal */}
-      <Dialog open={showAdjustmentModal} onOpenChange={setShowAdjustmentModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Stock Adjustment</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="p-3 bg-muted rounded-lg">
-              <p className="font-medium">{selectedProduct?.name}</p>
-              <p className="text-sm text-muted-foreground">Current Stock: {selectedProduct?.stockQuantity}</p>
-            </div>
-            <div className="grid gap-2">
-              <Label>Adjustment Type</Label>
-              <Select value={formData.type} onValueChange={(v) => setFormData({...formData, type: v})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="stock_in">Stock In (Add)</SelectItem>
-                  <SelectItem value="stock_out">Stock Out (Remove)</SelectItem>
-                  <SelectItem value="adjustment">Adjustment</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label>Quantity *</Label>
-              <Input 
-                type="number" 
-                min="1" 
-                value={formData.quantity} 
-                onChange={(e) => setFormData({...formData, quantity: e.target.value})} 
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Reason</Label>
-              <Input 
-                value={formData.reason} 
-                onChange={(e) => setFormData({...formData, reason: e.target.value})} 
-                placeholder="e.g. New shipment, damaged goods"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAdjustmentModal(false)}>Cancel</Button>
-            <Button onClick={handleAdjustment} disabled={saving || !formData.quantity}>
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Adjustment
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Product Modal */}
-      <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
-        <DialogContent className="sm:max-w-md" description="Edit product details">
-          <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label>Product Image</Label>
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Button 
-                    type="button"
-                    variant={!editImage ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => {
-                      const input = document.createElement("input")
-                      input.type = "file"
-                      input.accept = "image/*"
-                      input.onchange = async (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0]
-                        if (!file) return
-                        const formData = new FormData()
-                        formData.append("file", file)
-                        try {
-                          const res = await fetch("/api/upload", { method: "POST", body: formData })
-                          const data = await res.json()
-                          if (data.success) setEditImage(data.url)
-                        } catch (err) { console.error(err) }
-                      }
-                      input.click()
-                    }}
-                  >
-                    <Upload className="h-4 w-4 mr-1" />
-                    Upload
-                  </Button>
-                  <Button 
-                    type="button"
-                    variant={showUrlInput ? "default" : "outline"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => { 
-                      setUrlInput(editImage || "")
-                      setShowUrlInput(true) 
-                    }}
-                  >
-                    <ImageIcon className="h-4 w-4 mr-1" />
-                    URL
-                  </Button>
-                </div>
-                {showUrlInput && (
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm">Stock Levels</CardTitle>
                   <div className="flex gap-2">
-                    <Input 
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      placeholder="Enter image URL..."
-                      className="flex-1"
-                    />
-                    <Button 
-                      size="sm"
-                      onClick={() => {
-                        if (urlInput) setEditImage(urlInput)
-                        setShowUrlInput(false)
-                        setUrlInput("")
-                      }}
-                    >
-                      Add
-                    </Button>
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => { setShowUrlInput(false); setUrlInput("") }}
-                    >
-                      Cancel
-                    </Button>
+                    <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search products..." className="w-[180px]" />
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-[120px] h-8 text-[13px]">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="ok">In Stock</SelectItem>
+                        <SelectItem value="low">Low Stock</SelectItem>
+                        <SelectItem value="out">Out of Stock</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : filteredProducts.length === 0 ? (
+                  <EmptyState icon={Package} title="No products found" description="No products match your current filters." />
+                ) : (
+                  <div className="divide-y divide-border/50">
+                    {filteredProducts.map((product) => {
+                      const status = getStockStatus(product.stockQuantity, product.reorderLevel)
+                      return (
+                        <div key={product._id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
+                              <Package className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="text-[13px] font-medium">{product.name}</p>
+                              <p className="text-xs text-muted-foreground">{product.sku}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <p className="text-[13px] font-medium">{product.stockQuantity}</p>
+                              <p className="text-[11px] text-muted-foreground">Reorder at {product.reorderLevel}</p>
+                            </div>
+                            {getStatusBadge(status)}
+                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openEditModal(product)}>
+                              <Pencil className="h-3 w-3" />
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openAdjustmentModal(product)}>
+                              Adjust
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
-                {!showUrlInput && editImage && (
-                  <div className="relative inline-block w-full">
-                    <img 
-                      src={editImage} 
-                      alt="Preview" 
-                      className="h-32 w-full object-cover rounded-lg border"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f0f0f0' width='100' height='100'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' fill='%23999'%3EInvalid Image%3C/text%3E%3C/svg%3E"
-                      }}
-                    />
-                    <button 
-                      type="button"
-                      onClick={() => setEditImage("")}
-                      className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 hover:bg-destructive/80"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Recent Movements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : movements.length === 0 ? (
+                  <EmptyState icon={ArrowUpDown} title="No movements yet" description="Stock movements will appear here." />
+                ) : (
+                  <div className="divide-y divide-border/50">
+                    {movements.slice(0, 10).map((movement) => (
+                      <div key={movement._id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                        <div className="mt-0.5">{getMovementIcon(movement.type)}</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium truncate">{movement.productName}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {movement.type === "stock_in" && "+"}
+                            {movement.type === "stock_out" && "-"}
+                            {movement.type === "adjustment" && (movement.quantity > 0 ? "+" : "-")}
+                            {movement.type === "sale" && "-"}
+                            {Math.abs(movement.quantity)} units · {movement.reference}
+                          </p>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                          {formatRelativeTime(movement.date)}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <Dialog open={showAdjustmentModal} onOpenChange={setShowAdjustmentModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Stock Adjustment</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="rounded-lg bg-muted/50 p-3">
+                <p className="text-[13px] font-medium">{selectedProduct?.name}</p>
+                <p className="text-xs text-muted-foreground">Current Stock: {selectedProduct?.stockQuantity}</p>
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-[13px]">Adjustment Type</Label>
+                <Select value={formData.type} onValueChange={(v) => setFormData({...formData, type: v})}>
+                  <SelectTrigger className="h-9 text-[13px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="stock_in">Stock In (Add)</SelectItem>
+                    <SelectItem value="stock_out">Stock Out (Remove)</SelectItem>
+                    <SelectItem value="adjustment">Adjustment</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-[13px]">Quantity *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={formData.quantity}
+                  onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                  className="h-9 text-[13px]"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-[13px]">Reason</Label>
+                <Input
+                  value={formData.reason}
+                  onChange={(e) => setFormData({...formData, reason: e.target.value})}
+                  placeholder="e.g. New shipment, damaged goods"
+                  className="h-9 text-[13px]"
+                />
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label>Product Name</Label>
-              <Input 
-                value={editingProduct?.name || ""}
-                onChange={(e) => updateEditingProduct("name", e.target.value)}
-                placeholder="Product name"
-              />
+            <DialogFooter>
+              <Button size="sm" variant="outline" onClick={() => setShowAdjustmentModal(false)}>Cancel</Button>
+              <Button size="sm" className="gap-1.5" onClick={handleAdjustment} disabled={saving || !formData.quantity}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                Save Adjustment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
+          <DialogContent className="sm:max-w-md" description="Edit product details">
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label className="text-[13px]">Product Image</Label>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={!editImage ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1 gap-1.5"
+                      onClick={() => {
+                        const input = document.createElement("input")
+                        input.type = "file"
+                        input.accept = "image/*"
+                        input.onchange = async (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0]
+                          if (!file) return
+                          const formData = new FormData()
+                          formData.append("file", file)
+                          try {
+                            const res = await fetch("/api/upload", { method: "POST", body: formData })
+                            const data = await res.json()
+                            if (data.success) setEditImage(data.url)
+                          } catch (err) { console.error(err) }
+                        }
+                        input.click()
+                      }}
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      Upload
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={showUrlInput ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1 gap-1.5"
+                      onClick={() => {
+                        setUrlInput(editImage || "")
+                        setShowUrlInput(true)
+                      }}
+                    >
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      URL
+                    </Button>
+                  </div>
+                  {showUrlInput && (
+                    <div className="flex gap-2">
+                      <Input
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        placeholder="Enter image URL..."
+                        className="flex-1 h-9 text-[13px]"
+                      />
+                      <Button
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => {
+                          if (urlInput) setEditImage(urlInput)
+                          setShowUrlInput(false)
+                          setUrlInput("")
+                        }}
+                      >
+                        Add
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => { setShowUrlInput(false); setUrlInput("") }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
+                  {!showUrlInput && editImage && (
+                    <div className="relative inline-block w-full">
+                      <img
+                        src={editImage}
+                        alt="Preview"
+                        className="h-32 w-full object-cover rounded-lg border border-border/50"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23f0f0f0' width='100' height='100'/%3E%3Ctext x='50' y='50' text-anchor='middle' dy='.3em' fill='%23999'%3EInvalid Image%3C/text%3E%3C/svg%3E"
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setEditImage("")}
+                        className="absolute top-1 right-1 rounded-full bg-destructive p-1 text-destructive-foreground hover:bg-destructive/80"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-[13px]">Product Name</Label>
+                <Input
+                  value={editingProduct?.name || ""}
+                  onChange={(e) => updateEditingProduct("name", e.target.value)}
+                  placeholder="Product name"
+                  className="h-9 text-[13px]"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-[13px]">Stock Quantity</Label>
+                <Input
+                  type="number"
+                  value={editingProduct?.stockQuantity || 0}
+                  onChange={(e) => updateEditingProduct("stockQuantity", parseInt(e.target.value) || 0)}
+                  placeholder="0"
+                  className="h-9 text-[13px]"
+                />
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label>Stock Quantity</Label>
-              <Input
-                type="number"
-                value={editingProduct?.stockQuantity || 0}
-                onChange={(e) => updateEditingProduct("stockQuantity", parseInt(e.target.value) || 0)}
-                placeholder="0"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingProduct(null)}>Cancel</Button>
-            <Button onClick={handleEditProduct} disabled={saving || !editingProduct?.name}>
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+            <DialogFooter>
+              <Button size="sm" variant="outline" onClick={() => setEditingProduct(null)}>Cancel</Button>
+              <Button size="sm" className="gap-1.5" onClick={handleEditProduct} disabled={saving || !editingProduct?.name}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </AppLayout>
   )
 }

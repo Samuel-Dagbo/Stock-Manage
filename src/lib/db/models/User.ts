@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
 
-export type UserRole = "owner" | "manager" | "cashier" | "staff" | "pending"
+export type UserRole = "admin" | "sales" | "manager" | "cashier" | "staff" | "pending"
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId
@@ -38,8 +38,8 @@ const UserSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["owner", "manager", "cashier", "staff", "pending"],
-      default: "pending",
+enum: ["admin", "sales", "manager", "cashier", "staff", "pending"],
+    default: "pending",
     },
     shop: {
       type: Schema.Types.ObjectId,

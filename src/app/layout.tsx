@@ -10,7 +10,7 @@ const inter = Inter({
   subsets: ["latin"],
 })
 
-const jetbrainsMono = Inter({
+const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
 })

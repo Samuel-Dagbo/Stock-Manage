@@ -68,16 +68,19 @@ function NavItem({ item, isActive, collapsed, onClick }: NavItemProps) {
       href={item.href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+        "group flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
         isActive 
-          ? "bg-gradient-to-r from-primary/90 to-primary text-white shadow-lg shadow-primary/25" 
-          : "text-muted-foreground hover:bg-muted hover:text-foreground",
-        collapsed ? "justify-center px-2" : ""
+          ? "bg-primary-subtle text-primary" 
+          : "text-muted-foreground hover:bg-accent hover:text-foreground",
+        collapsed ? "justify-center px-0" : ""
       )}
       title={collapsed ? item.name : undefined}
     >
-      <item.icon className={cn("h-5 w-5 shrink-0", isActive && "text-white")} />
+      <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
       {!collapsed && <span>{item.name}</span>}
+      {isActive && !collapsed && (
+        <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+      )}
     </Link>
   )
 }
@@ -93,7 +96,7 @@ interface NavGroupProps {
 function NavGroup({ title, items, pathname, collapsed, onClick }: NavGroupProps) {
   if (collapsed) {
     return (
-      <div className="flex flex-col items-center gap-1 py-2">
+      <div className="flex flex-col items-center gap-0.5 py-1">
         {items.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
           return (
@@ -102,14 +105,14 @@ function NavGroup({ title, items, pathname, collapsed, onClick }: NavGroupProps)
               href={item.href}
               onClick={onClick}
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
+                "group flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150",
                 isActive 
-                  ? "bg-gradient-to-r from-primary/90 to-primary text-white shadow-lg shadow-primary/25" 
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-primary-subtle text-primary" 
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
               title={item.name}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
             </Link>
           )
         })}
@@ -118,9 +121,9 @@ function NavGroup({ title, items, pathname, collapsed, onClick }: NavGroupProps)
   }
 
   return (
-    <div className="space-y-1">
-      <div className="px-3 py-2">
-        <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+    <div className="space-y-0.5">
+      <div className="px-3 pt-3 pb-1">
+        <span className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
           {title}
         </span>
       </div>
@@ -153,54 +156,55 @@ export function Sidebar() {
   }
 
   const sidebarClasses = cn(
-    "fixed left-0 top-0 z-40 h-screen transition-all duration-300 ease-in-out",
-    isMobile ? "w-72" : sidebarCollapsed ? "w-20" : "w-72",
+    "fixed left-0 top-0 z-40 h-screen transition-all duration-200 ease-in-out",
+    isMobile ? "w-64" : sidebarCollapsed ? "w-[68px]" : "w-64",
     isMobile && !sidebarOpen && "-translate-x-full"
   )
 
   return (
     <aside className={sidebarClasses}>
-      <div className="flex h-full flex-col bg-gradient-to-b from-background to-background/80 backdrop-blur-xl border-r border-border/50">
-        {/* Header */}
+      <div className="flex h-full flex-col bg-sidebar-bg border-r border-sidebar-border">
         <div className={cn(
-          "flex h-16 items-center border-b border-border/50 px-4",
-          sidebarCollapsed && !isMobile ? "justify-center" : "px-6"
+          "flex h-14 items-center border-b border-sidebar-border px-4",
+          sidebarCollapsed && !isMobile ? "justify-center" : "px-5"
         )}>
           {(!sidebarCollapsed || isMobile) && (
-            <Link href="/dashboard" className="flex items-center gap-3 group" onClick={handleLinkClick}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg">
-                <Store className="h-5 w-5" />
+            <Link href="/dashboard" className="flex items-center gap-2.5 group" onClick={handleLinkClick}>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary text-white">
+                <Store className="h-4 w-4" />
               </div>
-              {!isMobile && (
-                <div>
-                  <span className="text-base font-bold">Stock Manage</span>
-                  <p className="text-xs text-muted-foreground">Inventory System</p>
-                </div>
-              )}
+              <div className="min-w-0">
+                <span className="text-sm font-bold tracking-tight">Stock Manage</span>
+              </div>
             </Link>
           )}
           {sidebarCollapsed && !isMobile && (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg">
-              <Store className="h-5 w-5" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary text-white">
+              <Store className="h-4 w-4" />
             </div>
+          )}
+          {isMobile && (
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="ml-auto p-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
           )}
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-4 p-4 overflow-y-auto">
+        <nav className="flex-1 space-y-1 p-3 overflow-y-auto scrollbar-thin">
           <NavGroup title="Main" items={mainNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
           <NavGroup title="Inventory" items={inventoryNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
           <NavGroup title="CRM" items={crmNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
           <NavGroup title="Finance" items={financeNav} pathname={pathname} collapsed={sidebarCollapsed && !isMobile} onClick={handleLinkClick} />
         </nav>
 
-        {/* Footer */}
-        <div className="border-t border-border/50 p-4 space-y-2">
-          {(!sidebarCollapsed || isMobile) && (
+        <div className="border-t border-sidebar-border p-3 space-y-1">
+          {(!sidebarCollapsed || isMobile) ? (
             <NavGroup title="System" items={bottomNav} pathname={pathname} collapsed={false} onClick={handleLinkClick} />
-          )}
-          {sidebarCollapsed && !isMobile && (
-            <div className="flex flex-col items-center gap-1 py-2">
+          ) : (
+            <div className="flex flex-col items-center gap-0.5 py-1">
               {bottomNav.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
                 return (
@@ -208,42 +212,34 @@ export function Sidebar() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
+                      "group flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150",
                       isActive 
-                        ? "bg-gradient-to-r from-primary/90 to-primary text-white shadow-lg shadow-primary/25" 
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        ? "bg-primary-subtle text-primary" 
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     )}
                     title={item.name}
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
                   </Link>
                 )
               })}
             </div>
           )}
           
-          {isMobile ? (
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-            >
-              <X className="h-5 w-5" />
-              <span>Close</span>
-            </button>
-          ) : (
+          {!isMobile && (
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 w-full",
-                "hover:bg-muted hover:text-foreground",
-                sidebarCollapsed && "justify-center px-2"
+                "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-muted-foreground transition-all duration-150 w-full",
+                "hover:bg-accent hover:text-foreground",
+                sidebarCollapsed && "justify-center px-0"
               )}
             >
               {sidebarCollapsed ? (
-                <PanelLeft className="h-5 w-5" />
+                <PanelLeft className="h-4 w-4" />
               ) : (
                 <>
-                  <PanelLeftClose className="h-5 w-5" />
+                  <PanelLeftClose className="h-4 w-4" />
                   <span>Collapse</span>
                 </>
               )}
@@ -255,16 +251,15 @@ export function Sidebar() {
   )
 }
 
-// Add mobile toggle button to header
 export function MobileSidebarToggle() {
   const { setSidebarOpen } = useUIStore()
   
   return (
     <button
       onClick={() => setSidebarOpen(true)}
-      className="lg:hidden p-2 hover:bg-muted rounded-lg"
+      className="lg:hidden p-2 hover:bg-accent rounded-lg text-muted-foreground transition-colors"
     >
-      <Menu className="h-6 w-6" />
+      <Menu className="h-5 w-5" />
     </button>
   )
 }

@@ -3,9 +3,8 @@
 export const dynamic = "force-dynamic"
 
 import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -16,23 +15,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  Search,
   Download,
   Receipt,
   Eye,
   RotateCcw,
   Filter,
-  ArrowUpRight,
-  ArrowDownRight,
-  CircleDot,
   FileText,
   Printer,
   X,
-  Loader2
+  DollarSign,
 } from "lucide-react"
-import { formatCurrency, formatDateTime, formatRelativeTime, cn } from "@/lib/utils"
+import { formatCurrency, formatDateTime, formatRelativeTime } from "@/lib/utils"
 import { AppLayout } from "@/components/shared/app-layout"
-import { motion, AnimatePresence } from "framer-motion"
+import { StatCard } from "@/components/shared/stat-card"
+import { SearchInput } from "@/components/shared/search-input"
+import { EmptyState } from "@/components/shared/empty-state"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 import { format } from "date-fns"
@@ -56,75 +53,36 @@ function SalesSkeleton() {
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="border-0 shadow-md">
-            <CardContent className="p-6">
+          <Card key={i}>
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-9 w-32" />
+                  <Skeleton className="h-7 w-32" />
                 </div>
-                <Skeleton className="h-14 w-14 rounded-2xl" />
+                <Skeleton className="h-9 w-9 rounded-lg" />
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
-      <Card className="border-0 shadow-md">
+      <Card>
         <CardContent className="p-4">
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-muted/50">
-                <Skeleton className="h-10 w-10 rounded-xl" />
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Skeleton className="h-9 w-9 rounded-lg" />
                 <div className="space-y-2 flex-1">
                   <Skeleton className="h-4 w-48" />
                   <Skeleton className="h-3 w-32" />
                 </div>
-                <Skeleton className="h-6 w-20" />
+                <Skeleton className="h-5 w-16" />
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
     </div>
-  )
-}
-
-function StatCard({ title, value, change, icon: Icon, color, gradient, delay }: {
-  title: string, value: string, change: number, icon: any, color: string, gradient: string, delay: number
-}) {
-  const isPositive = change > 0
-  const isNeutral = change === 0
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-    >
-      <Card className="border-0 shadow-md card-hover overflow-hidden relative">
-        <div className={`absolute top-0 right-0 w-32 h-32 ${gradient} opacity-10 rounded-full -translate-y-1/2 translate-x-1/2`} />
-        <CardContent className="p-6 relative">
-          <div className="flex items-center justify-between">
-            <div className={`h-14 w-14 rounded-2xl ${gradient} flex items-center justify-center shadow-lg`}>
-              <Icon className={`h-7 w-7 ${color}`} />
-            </div>
-            <div className={cn(
-              "flex items-center gap-1 text-sm font-medium",
-              isPositive ? "text-emerald-600 dark:text-emerald-400" :
-              isNeutral ? "text-muted-foreground" : "text-rose-600 dark:text-rose-400"
-            )}>
-              {isPositive ? <ArrowUpRight className="h-4 w-4" /> :
-               isNeutral ? <CircleDot className="h-3 w-3" /> : <ArrowDownRight className="h-4 w-4" />}
-              {Math.abs(change)}%
-            </div>
-          </div>
-          <div className="mt-5">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold mt-1 tracking-tight">{value}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
   )
 }
 
@@ -241,37 +199,31 @@ function ReceiptModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col"
+      <div
+        className="bg-card rounded-lg shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
+        <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Receipt className="h-5 w-5 text-primary" />
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Receipt className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold">Receipt</h3>
-              <p className="text-xs text-muted-foreground font-mono">{sale.receiptNumber}</p>
+              <h3 className="text-sm font-semibold">Receipt</h3>
+              <p className="text-[11px] text-muted-foreground font-mono">{sale.receiptNumber}</p>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <div ref={receiptRef} className="bg-white dark:bg-black text-black dark:text-white p-4 rounded-lg font-mono text-sm">
+          <div ref={receiptRef} className="bg-white dark:bg-black text-black dark:text-white p-4 rounded-lg font-mono text-[13px]">
             <div className="text-center mb-4">
               <h2 className="text-lg font-bold">Stock Manage</h2>
               <p className="text-xs text-gray-500">Sales Receipt</p>
@@ -335,13 +287,13 @@ function ReceiptModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
             <Printer className="h-4 w-4" />
             Print
           </Button>
-          <Button className="flex-1 gap-2 bg-gradient-to-r from-primary to-primary/80" onClick={handleDownloadPDF}>
+          <Button className="flex-1 gap-2" onClick={handleDownloadPDF}>
             <Download className="h-4 w-4" />
             Download PDF
           </Button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }
 
@@ -388,24 +340,26 @@ export default function SalesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10 shadow-sm">Completed</Badge>
+        return <Badge variant="success">Completed</Badge>
       case "refunded":
-        return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/10 shadow-sm">Refunded</Badge>
+        return <Badge variant="destructive">Refunded</Badge>
       case "partial":
-        return <Badge className="bg-slate-500/10 text-slate-600 border-slate-500/20 hover:bg-slate-500/10 shadow-sm">Partial</Badge>
+        return <Badge variant="warning">Partial</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
   }
 
   const getPaymentBadge = (method: string) => {
-    const colors: Record<string, { bg: string, text: string }> = {
-      cash: { bg: "bg-emerald-500/10", text: "text-emerald-600" },
-      momo: { bg: "bg-violet-500/10", text: "text-violet-600" },
-      card: { bg: "bg-blue-500/10", text: "text-blue-600" },
+    switch (method) {
+      case "cash":
+        return <Badge variant="success" className="capitalize">{method}</Badge>
+      case "momo":
+      case "card":
+        return <Badge variant="info" className="capitalize">{method}</Badge>
+      default:
+        return <Badge variant="outline" className="capitalize">{method}</Badge>
     }
-    const style = colors[method] || { bg: "bg-muted", text: "text-muted-foreground" }
-    return <Badge className={`${style.bg} ${style.text} border-0 shadow-sm capitalize font-medium`}>{method}</Badge>
   }
 
   const handleExportCSV = () => {
@@ -474,72 +428,57 @@ export default function SalesPage() {
     doc.save(`sales-report-${format(new Date(), "yyyy-MM-dd")}.pdf`)
   }
 
+  if (loading) {
+    return (
+      <AppLayout title="Sales">
+        <SalesSkeleton />
+      </AppLayout>
+    )
+  }
+
   return (
     <AppLayout title="Sales">
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold">Sales</h2>
-            <p className="text-muted-foreground">View and manage all transactions</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
-              <Download className="h-4 w-4" />
-              CSV
-            </Button>
-            <Button variant="outline" className="gap-2" onClick={handleExportPDF}>
-              <Download className="h-4 w-4" />
-              PDF
-            </Button>
-          </div>
-        </div>
-
         <div className="grid gap-4 md:grid-cols-3">
           <StatCard
             title="Total Revenue"
             value={formatCurrency(totalRevenue)}
             change={12.5}
-            icon={formatCurrency}
-            color="text-emerald-600"
-            gradient="bg-gradient-to-br from-emerald-500/20 to-emerald-500/5"
-            delay={0.1}
+            trend="up"
+            icon={DollarSign}
+            iconClassName="bg-success-subtle text-success"
           />
           <StatCard
             title="Total Transactions"
             value={filteredSales.length.toString()}
             change={8.2}
+            trend="up"
             icon={Receipt}
-            color="text-primary"
-            gradient="bg-gradient-to-br from-primary/20 to-primary/5"
-            delay={0.15}
+            iconClassName="bg-info-subtle text-info"
           />
           <StatCard
             title="Refunds"
             value={refundCount.toString()}
-            change={refundCount > 0 ? -5 : 0}
+            change={refundCount > 0 ? 5 : 0}
+            trend={refundCount > 0 ? "down" : "neutral"}
             icon={RotateCcw}
-            color="text-amber-600"
-            gradient="bg-gradient-to-br from-amber-500/20 to-amber-500/5"
-            delay={0.2}
+            iconClassName="bg-warning-subtle text-warning"
           />
         </div>
 
-        <Card className="border-0 shadow-md overflow-hidden">
-          <CardHeader className="pb-4 border-b bg-gradient-to-r from-muted/50 to-transparent">
+        <Card>
+          <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search by receipt number or customer..."
-                  className="pl-11 h-11 bg-muted/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/20"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search by receipt number or customer..."
+                className="flex-1"
+              />
               <div className="flex gap-3">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[150px] h-11">
-                    <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <SelectTrigger className="w-[140px] h-8 text-[13px]">
+                    <Filter className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -550,7 +489,7 @@ export default function SalesPage() {
                   </SelectContent>
                 </Select>
                 <Select value={dateFilter} onValueChange={setDateFilter}>
-                  <SelectTrigger className="w-[150px] h-11">
+                  <SelectTrigger className="w-[130px] h-8 text-[13px]">
                     <SelectValue placeholder="Date" />
                   </SelectTrigger>
                   <SelectContent>
@@ -562,61 +501,64 @@ export default function SalesPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-[13px]" onClick={handleExportCSV}>
+                  <Download className="h-3.5 w-3.5" />
+                  CSV
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-[13px]" onClick={handleExportPDF}>
+                  <Download className="h-3.5 w-3.5" />
+                  PDF
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            {loading ? (
-              <SalesSkeleton />
-            ) : filteredSales.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
-                  <Receipt className="h-10 w-10 text-muted-foreground/50" />
-                </div>
-                <p className="text-lg font-medium mb-1">No sales found</p>
-                <p className="text-sm text-muted-foreground mb-4">Try adjusting your filters or search</p>
-                <Button variant="outline" className="gap-2" onClick={() => window.location.href = "/pos"}>
-                  <FileText className="h-4 w-4" />
-                  Go to POS
-                </Button>
-              </div>
+            {filteredSales.length === 0 ? (
+              <EmptyState
+                icon={Receipt}
+                title="No sales found"
+                description="Try adjusting your filters or search"
+                action={
+                  <Button variant="outline" size="sm" className="gap-2" onClick={() => window.location.href = "/pos"}>
+                    <FileText className="h-3.5 w-3.5" />
+                    Go to POS
+                  </Button>
+                }
+              />
             ) : (
               <div className="divide-y divide-border/50">
-                {filteredSales.map((sale, i) => (
-                  <motion.div
+                {filteredSales.map((sale) => (
+                  <div
                     key={sale._id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
                     className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Receipt className="h-5 w-5 text-primary" />
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Receipt className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-mono text-sm font-medium">{sale.receiptNumber}</p>
-                        <p className="text-sm text-muted-foreground">{sale.customer?.name || "Walk-in Customer"}</p>
+                        <p className="font-mono text-[13px] font-medium">{sale.receiptNumber}</p>
+                        <p className="text-[13px] text-muted-foreground">{sale.customer?.name || "Walk-in Customer"}</p>
                         <p className="text-xs text-muted-foreground">{formatDateTime(sale.createdAt)}</p>
                       </div>
                     </div>
-                    <div className="hidden lg:flex items-center gap-6">
-                      <div className="text-center">
-                        <Badge variant="outline" className="font-normal">{sale.items.length} items</Badge>
+                    <div className="hidden lg:flex items-center gap-4">
+                      <Badge variant="outline" className="font-normal text-[11px]">{sale.items.length} items</Badge>
+                      <div className="text-right min-w-[90px]">
+                        <p className="text-sm font-semibold">{formatCurrency(sale.total)}</p>
+                        <p className="text-[11px] text-muted-foreground">{formatRelativeTime(sale.createdAt)}</p>
                       </div>
-                      <div className="text-right min-w-[100px]">
-                        <p className="font-semibold">{formatCurrency(sale.total)}</p>
-                        <p className="text-xs text-muted-foreground">{formatRelativeTime(sale.createdAt)}</p>
-                      </div>
-                      <div className="min-w-[80px]">
+                      <div className="min-w-[70px]">
                         {getPaymentBadge(sale.paymentMethod)}
                       </div>
-                      <div className="min-w-[100px]">
+                      <div className="min-w-[90px]">
                         {getStatusBadge(sale.status)}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 lg:hidden">
                       <div className="text-right">
-                        <p className="font-semibold">{formatCurrency(sale.total)}</p>
+                        <p className="text-sm font-semibold">{formatCurrency(sale.total)}</p>
                         {getStatusBadge(sale.status)}
                       </div>
                     </div>
@@ -624,15 +566,15 @@ export default function SalesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 hover:bg-primary/10"
+                        className="h-7 w-7"
                         onClick={() => setSelectedSale(sale)}
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 hover:bg-primary/10"
+                        className="h-7 w-7"
                         onClick={() => {
                           const doc = new jsPDF()
                           doc.setFontSize(20)
@@ -654,10 +596,10 @@ export default function SalesPage() {
                           doc.save(`receipt-${sale.receiptNumber}.pdf`)
                         }}
                       >
-                        <Download className="h-4 w-4" />
+                        <Download className="h-3.5 w-3.5" />
                       </Button>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
@@ -665,11 +607,9 @@ export default function SalesPage() {
         </Card>
       </div>
 
-      <AnimatePresence>
-        {selectedSale && (
-          <ReceiptModal sale={selectedSale} onClose={() => setSelectedSale(null)} />
-        )}
-      </AnimatePresence>
+      {selectedSale && (
+        <ReceiptModal sale={selectedSale} onClose={() => setSelectedSale(null)} />
+      )}
     </AppLayout>
   )
 }

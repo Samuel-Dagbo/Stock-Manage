@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AppLayout } from "@/components/shared/app-layout"
+import { StatCard } from "@/components/shared/stat-card"
+import { EmptyState } from "@/components/shared/empty-state"
 import {
   Select,
   SelectContent,
@@ -17,22 +19,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Download,
   TrendingUp,
-  TrendingDown,
   DollarSign,
   Package,
   Users,
   ShoppingCart,
   BarChart3,
-  ArrowUpRight,
-  ArrowDownRight,
   FileText,
   PieChart as PieChartIcon,
   TrendingUp as TrendIcon,
   Activity,
   Calendar,
-  Loader2
 } from "lucide-react"
-import { formatCurrency, cn } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils"
 import {
   AreaChart,
   Area,
@@ -46,11 +44,9 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
   LineChart,
   Line
 } from "recharts"
-import { motion } from "framer-motion"
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 import {
@@ -103,18 +99,12 @@ interface DashboardMetrics {
   ordersChange: number
 }
 
-const colorMap: Record<string, string> = {
-  emerald: "text-emerald-600 bg-emerald-500/10",
-  primary: "text-primary bg-primary/10",
-  violet: "text-violet-600 bg-violet-500/10",
-  cyan: "text-cyan-600 bg-cyan-500/10",
-}
-
-const gradientMap: Record<string, string> = {
-  emerald: "bg-gradient-to-br from-emerald-500/20 to-emerald-500/5",
-  primary: "bg-gradient-to-br from-primary/20 to-primary/5",
-  violet: "bg-gradient-to-br from-violet-500/20 to-violet-500/5",
-  cyan: "bg-gradient-to-br from-cyan-500/20 to-cyan-500/5",
+const chartTooltipStyle = {
+  backgroundColor: 'var(--card)',
+  border: '1px solid var(--border)',
+  borderRadius: '0.5rem',
+  boxShadow: 'var(--shadow-md)',
+  fontSize: '12px',
 }
 
 function formatPeriodLabel(period: PeriodType): string {
@@ -173,49 +163,13 @@ function calculatePercentageChange(current: number, previous: number): number {
   return ((current - previous) / previous) * 100
 }
 
-function MetricCard({ title, value, change, icon: Icon, color, delay }: {
-  title: string, value: string, change: number, icon: any, color: string, delay: number
-}) {
-  const isPositive = change >= 0
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-    >
-      <Card className="border-0 shadow-md card-hover overflow-hidden relative">
-        <div className={`absolute top-0 right-0 w-32 h-32 ${gradientMap[color]} opacity-10 rounded-full -translate-y-1/2 translate-x-1/2`} />
-        <CardContent className="p-6 relative">
-          <div className="flex items-center justify-between">
-            <div className={`h-14 w-14 rounded-2xl ${gradientMap[color]} flex items-center justify-center shadow-lg`}>
-              <Icon className={`h-7 w-7 ${colorMap[color].split(' ')[0]}`} />
-            </div>
-            <div className={cn(
-              "flex items-center gap-1 text-sm font-medium",
-              isPositive ? "text-emerald-600" : "text-rose-600"
-            )}>
-              {isPositive ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-              {Math.abs(change).toFixed(1)}%
-            </div>
-          </div>
-          <div className="mt-5">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold mt-1 tracking-tight">{value}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
-
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-card border border-border rounded-xl shadow-lg p-3">
+      <div style={chartTooltipStyle} className="p-3">
         <p className="font-medium text-sm mb-1">{label}</p>
         {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
+          <p key={index} className="text-[13px]" style={{ color: entry.color }}>
             {entry.name}: {typeof entry.value === 'number' ? formatCurrency(entry.value) : entry.value}
           </p>
         ))}
@@ -228,31 +182,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 function ReportsSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-4 w-64" />
-        </div>
-        <div className="flex gap-3">
-          <Skeleton className="h-10 w-32" />
-          <Skeleton className="h-10 w-28" />
-          <Skeleton className="h-10 w-28" />
-        </div>
+      <div className="flex flex-wrap gap-2">
+        <Skeleton className="h-9 w-[140px]" />
+        <Skeleton className="h-9 w-20" />
+        <Skeleton className="h-9 w-20" />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="border-0 shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-14 w-14 rounded-2xl" />
-                <Skeleton className="h-6 w-16" />
-              </div>
-              <div className="mt-5 space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-9 w-32" />
-              </div>
-            </CardContent>
-          </Card>
+          <div key={i} className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-9 w-9 rounded-lg" />
+              <Skeleton className="h-4 w-14" />
+            </div>
+            <div className="mt-3 space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-7 w-28" />
+            </div>
+          </div>
         ))}
       </div>
     </div>
@@ -441,7 +387,7 @@ export default function ReportsPage() {
     const doc = new jsPDF()
 
     doc.setFontSize(20)
-    doc.setTextColor(59, 130, 246)
+    doc.setTextColor(5, 150, 105)
     doc.text("Sales Report", 14, 22)
 
     doc.setFontSize(10)
@@ -465,7 +411,7 @@ export default function ReportsPage() {
       head: [["Product", "Units Sold", "Revenue"]],
       body: topProductsData.map(p => [p.name, p.units, formatCurrency(p.revenue)]),
       theme: "striped",
-      headStyles: { fillColor: [59, 130, 246] }
+      headStyles: { fillColor: [5, 150, 105] }
     })
 
     const finalY = (doc as any).lastAutoTable?.finalY || 140
@@ -478,7 +424,7 @@ export default function ReportsPage() {
       head: [["Method", "Percentage", "Amount"]],
       body: paymentMethodData.map(p => [p.name, `${p.value}%`, formatCurrency(p.amount)]),
       theme: "striped",
-      headStyles: { fillColor: [59, 130, 246] }
+      headStyles: { fillColor: [5, 150, 105] }
     })
 
     doc.save(`sales-report-${period}-${format(new Date(), "yyyy-MM-dd")}.pdf`)
@@ -493,73 +439,65 @@ export default function ReportsPage() {
   }
 
   const displayMetrics = [
-    { title: "Total Revenue", value: formatCurrency(metrics.totalRevenue), change: metrics.revenueChange, icon: DollarSign, color: "emerald" },
-    { title: "Total Orders", value: metrics.totalOrders.toString(), change: metrics.ordersChange, icon: ShoppingCart, color: "primary" },
-    { title: "Avg Order Value", value: formatCurrency(metrics.avgOrderValue), change: 0, icon: BarChart3, color: "violet" },
-    { title: "Customers", value: metrics.totalCustomers.toString(), change: 0, icon: Users, color: "cyan" },
+    { title: "Total Revenue", value: formatCurrency(metrics.totalRevenue), change: metrics.revenueChange, trend: (metrics.revenueChange > 0 ? "up" : metrics.revenueChange < 0 ? "down" : "neutral") as "up" | "down" | "neutral", icon: DollarSign, iconClassName: "bg-emerald-500/10 text-emerald-600" },
+    { title: "Total Orders", value: metrics.totalOrders.toString(), change: metrics.ordersChange, trend: (metrics.ordersChange > 0 ? "up" : metrics.ordersChange < 0 ? "down" : "neutral") as "up" | "down" | "neutral", icon: ShoppingCart, iconClassName: "bg-primary-subtle text-primary" },
+    { title: "Avg Order Value", value: formatCurrency(metrics.avgOrderValue), change: 0, trend: "neutral" as const, icon: BarChart3, iconClassName: "bg-violet-500/10 text-violet-600" },
+    { title: "Customers", value: metrics.totalCustomers.toString(), change: 0, trend: "neutral" as const, icon: Users, iconClassName: "bg-cyan-500/10 text-cyan-600" },
   ]
 
   return (
     <AppLayout title="Reports">
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold">Reports & Analytics</h2>
-            <p className="text-muted-foreground">Business insights and performance metrics</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Select value={period} onValueChange={(v: PeriodType) => setPeriod(v)}>
-              <SelectTrigger className="w-[140px]">
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="year">This Year</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
-              <Download className="h-4 w-4" />
-              CSV
-            </Button>
-            <Button variant="outline" className="gap-2" onClick={handleExportPDF}>
-              <Download className="h-4 w-4" />
-              PDF
-            </Button>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <Select value={period} onValueChange={(v: PeriodType) => setPeriod(v)}>
+            <SelectTrigger className="w-[140px]">
+              <Calendar className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="week">This Week</SelectItem>
+              <SelectItem value="month">This Month</SelectItem>
+              <SelectItem value="year">This Year</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExportCSV}>
+            <Download className="h-4 w-4" />
+            CSV
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExportPDF}>
+            <Download className="h-4 w-4" />
+            PDF
+          </Button>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {displayMetrics.map((metric, i) => (
-            <MetricCard key={i} {...metric} delay={i * 0.1} />
+            <StatCard key={i} {...metric} />
           ))}
         </div>
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="bg-muted/50 p-1 rounded-xl">
-            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Overview</TabsTrigger>
-            <TabsTrigger value="sales" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Sales</TabsTrigger>
-            <TabsTrigger value="products" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Products</TabsTrigger>
-            <TabsTrigger value="payments" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Payments</TabsTrigger>
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="sales">Sales</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-2">
-              <Card className="border-0 shadow-md overflow-hidden">
-                <CardHeader className="pb-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
+              <Card>
+                <CardHeader className="pb-4 border-b border-border/50">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <TrendingUp className="h-4 w-4 text-primary" />
-                        </div>
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-primary" />
                         Revenue Trend
                       </CardTitle>
-                      <CardDescription>{formatPeriodLabel(period)} performance</CardDescription>
+                      <CardDescription className="text-xs">{formatPeriodLabel(period)} performance</CardDescription>
                     </div>
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                    <Badge variant="info">
                       {chartData.data.length} {period === "today" ? "hours" : period === "week" ? "days" : period === "month" ? "days" : "months"}
                     </Badge>
                   </div>
@@ -575,8 +513,8 @@ export default function ReportsPage() {
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/50" />
-                        <XAxis dataKey={chartData.xKey} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} className="text-muted-foreground" />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} tickFormatter={(v) => `GHS ${v >= 1000 ? `${v/1000}k` : v}`} className="text-muted-foreground" />
+                        <XAxis dataKey={chartData.xKey} axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} tickFormatter={(v) => `GHS ${v >= 1000 ? `${v/1000}k` : v}`} />
                         <Tooltip content={<CustomTooltip />} />
                         <Area type="monotone" dataKey={chartData.revenueKey} stroke="#059669" strokeWidth={2} fill="url(#colorRevenue)" name="Revenue" />
                       </AreaChart>
@@ -585,16 +523,14 @@ export default function ReportsPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-md overflow-hidden">
-                <CardHeader className="pb-4 border-b bg-gradient-to-r from-violet-500/5 to-transparent">
+              <Card>
+                <CardHeader className="pb-4 border-b border-border/50">
                   <div className="space-y-1">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                        <PieChartIcon className="h-4 w-4 text-violet-600" />
-                      </div>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <PieChartIcon className="h-4 w-4 text-violet-600" />
                       Payment Methods
                     </CardTitle>
-                    <CardDescription>Distribution by volume</CardDescription>
+                    <CardDescription className="text-xs">Distribution by volume</CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4">
@@ -624,7 +560,7 @@ export default function ReportsPage() {
                     {paymentMethodData.map((method) => (
                       <div key={method.name} className="flex items-center gap-2">
                         <div className="h-3 w-3 rounded-full" style={{ backgroundColor: method.color }} />
-                        <span className="text-sm text-muted-foreground">{method.name}</span>
+                        <span className="text-xs text-muted-foreground">{method.name}</span>
                       </div>
                     ))}
                   </div>
@@ -634,19 +570,17 @@ export default function ReportsPage() {
           </TabsContent>
 
           <TabsContent value="sales" className="space-y-4">
-            <Card className="border-0 shadow-md overflow-hidden">
-              <CardHeader className="pb-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
+            <Card>
+              <CardHeader className="pb-4 border-b border-border/50">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Activity className="h-4 w-4 text-primary" />
-                      </div>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-primary" />
                       Sales by {period === "today" ? "Hour" : period === "week" ? "Day" : period === "month" ? "Day" : "Month"}
                     </CardTitle>
-                    <CardDescription>{formatPeriodLabel(period)} performance</CardDescription>
+                    <CardDescription className="text-xs">{formatPeriodLabel(period)} performance</CardDescription>
                   </div>
-                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                  <Badge variant="success">
                     <TrendIcon className="h-3 w-3 mr-1" />
                     {filteredSales.length} Sales
                   </Badge>
@@ -663,8 +597,8 @@ export default function ReportsPage() {
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/50" />
-                      <XAxis dataKey={chartData.xKey} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} className="text-muted-foreground" />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} tickFormatter={(v) => `GHS ${v >= 1000 ? `${v/1000}k` : v}`} className="text-muted-foreground" />
+                      <XAxis dataKey={chartData.xKey} axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} tickFormatter={(v) => `GHS ${v >= 1000 ? `${v/1000}k` : v}`} />
                       <Tooltip content={<CustomTooltip />} />
                       <Bar dataKey={chartData.revenueKey} fill="url(#colorBar)" radius={[6, 6, 0, 0]} name="Sales" />
                     </BarChart>
@@ -675,58 +609,52 @@ export default function ReportsPage() {
           </TabsContent>
 
           <TabsContent value="products" className="space-y-4">
-            <Card className="border-0 shadow-md overflow-hidden">
-              <CardHeader className="pb-4 border-b bg-gradient-to-r from-violet-500/5 to-transparent">
+            <Card>
+              <CardHeader className="pb-4 border-b border-border/50">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                        <Package className="h-4 w-4 text-violet-600" />
-                      </div>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Package className="h-4 w-4 text-violet-600" />
                       Top Selling Products
                     </CardTitle>
-                    <CardDescription>By revenue in {formatPeriodLabel(period).toLowerCase()}</CardDescription>
+                    <CardDescription className="text-xs">By revenue in {formatPeriodLabel(period).toLowerCase()}</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                    <Download className="h-4 w-4 mr-2" />
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExportCSV}>
+                    <Download className="h-4 w-4" />
                     Export
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 {topProductsData.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">No product sales data for this period</p>
-                  </div>
+                  <EmptyState
+                    icon={Package}
+                    title="No product data"
+                    description="No product sales data for this period"
+                  />
                 ) : (
-                  <div className="space-y-3">
+                  <div className="divide-y divide-border/50">
                     {topProductsData.map((product, i) => (
-                      <motion.div
+                      <div
                         key={i}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="flex items-center justify-between p-4 rounded-xl hover:bg-muted/50 transition-colors"
+                        className="flex items-center justify-between py-3"
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-sm font-bold ${
-                            i === 0 ? "bg-amber-500/10 text-amber-500" :
-                            i === 1 ? "bg-slate-400/10 text-slate-400" :
-                            i === 2 ? "bg-orange-400/10 text-orange-400" :
+                        <div className="flex items-center gap-3">
+                          <div className={`h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                            i === 0 ? "bg-amber-500/10 text-amber-600" :
+                            i === 1 ? "bg-muted text-muted-foreground" :
+                            i === 2 ? "bg-orange-500/10 text-orange-600" :
                             "bg-muted text-muted-foreground"
                           }`}>
                             {i + 1}
                           </div>
                           <div>
-                            <p className="font-medium">{product.name}</p>
-                            <p className="text-sm text-muted-foreground">{product.units} units sold</p>
+                            <p className="text-[13px] font-medium">{product.name}</p>
+                            <p className="text-xs text-muted-foreground">{product.units} units sold</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold">{formatCurrency(product.revenue)}</p>
-                        </div>
-                      </motion.div>
+                        <p className="text-sm font-semibold">{formatCurrency(product.revenue)}</p>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -735,34 +663,30 @@ export default function ReportsPage() {
           </TabsContent>
 
           <TabsContent value="payments" className="space-y-4">
-            <Card className="border-0 shadow-md overflow-hidden">
-              <CardHeader className="pb-4 border-b bg-gradient-to-r from-emerald-500/5 to-transparent">
+            <Card>
+              <CardHeader className="pb-4 border-b border-border/50">
                 <div className="space-y-1">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                      <DollarSign className="h-4 w-4 text-emerald-600" />
-                    </div>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-emerald-600" />
                     Payment Analysis
                   </CardTitle>
-                  <CardDescription>Breakdown by payment method</CardDescription>
+                  <CardDescription className="text-xs">Breakdown by payment method</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="grid gap-4 md:grid-cols-3">
                   {paymentMethodData.map((method) => (
-                    <motion.div
+                    <div
                       key={method.name}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-6 rounded-xl bg-gradient-to-br from-muted/50 to-muted/20 border"
+                      className="rounded-xl border border-border/50 bg-muted/30 p-4"
                     >
-                      <div className="h-12 w-12 rounded-xl mb-4 flex items-center justify-center" style={{ backgroundColor: `${method.color}20` }}>
-                        <div className="h-6 w-6 rounded-full" style={{ backgroundColor: method.color }} />
+                      <div className="h-10 w-10 rounded-lg mb-3 flex items-center justify-center" style={{ backgroundColor: `${method.color}20` }}>
+                        <div className="h-5 w-5 rounded-full" style={{ backgroundColor: method.color }} />
                       </div>
-                      <p className="font-medium">{method.name}</p>
-                      <p className="text-2xl font-bold mt-2">{formatCurrency(method.amount)}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{method.value}% of total</p>
-                    </motion.div>
+                      <p className="text-[13px] font-medium">{method.name}</p>
+                      <p className="text-xl font-bold mt-1">{formatCurrency(method.amount)}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{method.value}% of total</p>
+                    </div>
                   ))}
                 </div>
               </CardContent>

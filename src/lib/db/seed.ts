@@ -44,39 +44,44 @@ async function seed() {
     await Expense.deleteMany({})
     console.log("Cleared existing data")
 
-    // Create admin user first (we'll link to shop after shop is created)
-    const hashedPassword = await bcrypt.hash("password123", 12)
-    let adminUser = await User.create({
-      name: "Store Admin",
-      email: "admin@stockmanage.com",
-      password: hashedPassword,
-      role: "owner",
-      isActive: true,
-      isApproved: true, // Admin is pre-approved
-    })
-    console.log("Created admin user:", adminUser.email)
+// Create default shop first (for single tenancy)
+  const shop = await Shop.create({
+    name: "Main Store",
+    slug: "default-shop",
+    type: "supermarket",
+    address: "Central Market, Accra",
+    phone: "+233 24 123 4567",
+    email: "store@stockmanage.com",
+    currency: "GHS",
+    locale: "en-GH",
+    taxRate: 15,
+    isActive: true,
+    receiptSettings: {
+      showLogo: true,
+      showAddress: true,
+      showPhone: true,
+      footerMessage: "Thank you for your business!",
+      terms: "No refunds on opened items",
+    },
+  })
+  console.log("Created default shop:", shop.name)
 
-    // Create shop with owner
-    const shop = await Shop.create({
-      name: "Accra Central Store",
-      slug: "accra-central-store",
-      type: "supermarket",
-      address: "Central Market, Accra",
-      phone: "+233 24 123 4567",
-      email: "accrastore@example.com",
-      currency: "GHS",
-      locale: "en-GH",
-      taxRate: 15,
-      isActive: true,
-      owner: adminUser._id,
-      receiptSettings: {
-        showLogo: true,
-        showAddress: true,
-        showPhone: true,
-        footerMessage: "Thank you for your business!",
-        terms: "No refunds on opened items",
-      },
-    })
+  // Create admin user
+  const hashedPassword = await bcrypt.hash("password123", 12)
+  const adminUser = await User.create({
+    name: "Store Admin",
+    email: "admin@stockmanage.com",
+    password: hashedPassword,
+    role: "admin",
+    shop: shop._id,
+    isActive: true,
+    isApproved: true,
+  })
+  console.log("Created admin user:", adminUser.email)
+
+  // Link shop to admin
+  shop.owner = adminUser._id
+  await shop.save()
     console.log("Created shop:", shop.name)
 
     // Link user to shop

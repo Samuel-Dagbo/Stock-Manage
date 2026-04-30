@@ -16,30 +16,26 @@ export function AppLayout({ children, title }: AppLayoutProps) {
   const { sidebarCollapsed, sidebarOpen, setSidebarOpen } = useUIStore()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
-
-      {/* Mobile Overlay */}
+    <div className="min-h-screen bg-background">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       <Sidebar />
 
-      {/* Main content wrapper with responsive margins - reacts to sidebar collapsed state */}
       <div
         className={cn(
-          "min-h-screen transition-all duration-300 ease-in-out",
-          sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
+          "min-h-screen transition-[margin] duration-200 ease-in-out",
+          sidebarCollapsed ? "lg:ml-[68px]" : "lg:ml-64"
         )}
       >
         <Header title={title} />
 
-        <main className="p-4 lg:p-6 min-h-[calc(100vh-4rem)] overflow-x-hidden">
-          <div className="w-full mx-auto">
+        <main className="p-4 lg:p-6 min-h-[calc(100vh-3.5rem)] overflow-x-hidden">
+          <div className="mx-auto max-w-7xl">
             {children}
           </div>
         </main>
