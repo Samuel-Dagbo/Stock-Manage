@@ -12,28 +12,27 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
             {icon}
           </div>
         )}
         <input
           type={type}
           className={cn(
-            "flex h-10 w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-[13px] transition-all duration-200",
-            "file:border-0 file:bg-transparent file:text-[13px] file:font-medium file:text-foreground",
+            "flex h-11 w-full rounded-xl border border-border/60 bg-background px-4 py-3 text-sm transition-all duration-200",
             "placeholder:text-muted-foreground/50",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:border-primary/50",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-            icon && "pl-10",
-            error && "border-destructive focus-visible:ring-destructive",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/50",
             "hover:border-border",
+            "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted",
+            icon && "pl-12",
+            error && "border-destructive/50 focus-visible:ring-destructive/30 focus-visible:border-destructive",
             className
           )}
           ref={ref}
           {...props}
         />
         {error && (
-          <p className="mt-1.5 text-xs text-destructive">{error}</p>
+          <p className="mt-2 text-xs text-destructive">{error}</p>
         )}
       </div>
     )

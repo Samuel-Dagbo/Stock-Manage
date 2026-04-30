@@ -29,8 +29,30 @@ import {
   TrendingUp as TrendIcon,
   Activity,
   Calendar,
-} from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
+  ArrowRight,
+  Plus,
+  Search,
+  Filter,
+  jsPDF,
+  autoTable,
+  format,
+  formatCurrency,
+  formatDateTime,
+  formatRelativeTime,
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  subDays,
+  subMonths,
+  subYears,
+  isWithinInterval,
+} from "@/components/ui/exports"
+import { formatCurrency, formatDateTime, formatRelativeTime } from "@/lib/utils"
 import {
   AreaChart,
   Area,
@@ -61,8 +83,7 @@ import {
   subDays,
   subMonths,
   subYears,
-  format,
-  isWithinInterval
+  isWithinInterval,
 } from "date-fns"
 
 type PeriodType = "today" | "week" | "month" | "year"
@@ -80,6 +101,516 @@ interface Sale {
   status: string
   createdAt: string
 }
+
+interface Product {
+  _id: string
+  name: string
+  sku: string
+  stockQuantity: number
+  category: { name: string }
+  sellingPrice: number
+}
+
+interface DashboardMetrics {
+  totalRevenue: number
+  totalOrders: number
+  avgOrderValue: number
+  totalCustomers: number
+  revenueChange: number
+  ordersChange: number
+}
+
+function ReportsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-10 w-10 rounded-lg" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <div className="mt-4 space-y-2">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-8 w-32" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <Skeleton className="h-5 w-32 mb-4" />
+            <Skeleton className="h-72 w-full rounded-lg" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <Skeleton className="h-5 w-32 mb-4" />
+            <Skeleton className="h-72 w-full rounded-lg" />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
+
+const chartTooltipStyle: React.CSSProperties = {
+  backgroundColor: "var(--card)",
+  border: "1px solid var(--border)",
+  borderRadius: "0.75rem",
+  boxShadow: "var(--shadow-lg)",
+  fontSize: "12px",
+  padding: "0.75rem 1rem",
+}
+
+function CustomTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    return (
+      <div style={chartTooltipStyle}>
+        <p className="font-semibold text-foreground mb-1">{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} className="text-muted-foreground" style={{ color: entry.color }}>
+            {entry.name === "revenue" ? "Revenue" : "Orders"}: {entry.name === "revenue" ? formatCurrency(entry.value) : entry.value}
+          </p>
+        ))}
+      </div>
+    )
+  }
+  return null
+}
+
+export default function ReportsPage() {
+  const [period, setPeriod] = useState<PeriodType>("month")
+  const [activeTab, setActiveTab] = useState("overview")
+  const [loading, setLoading] = useState(true)
+  const [metrics, setMetrics] = useState<DashboardMetrics>({
+    totalRevenue: 0,
+    totalOrders: 0,
+    avgOrderValue: 0,
+    totalCustomers: 0,
+    revenueChange: 0,
+    ordersChange: 0,
+  })
+  const [sales, setSales] = useState<Sale[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [chartData, setChartData] = useState<any[]>([])
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const [salesRes, productsRes, metricsRes] = await Promise.all([
+        fetch("/api/sales"),
+        fetch("/api/products"),
+        fetch("/api/metrics"),
+      ])
+      const salesData = await salesRes.json()
+      const productsData = await productsRes.json()
+      const metricsData = await metricsRes.json()
+      setSales(salesData.sales || [])
+      setProducts(productsData.products || [])
+      setMetrics(metricsData)
+      generateChartData(salesData.sales || [])
+    } catch (error) {
+      console.error("Failed to fetch data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const generateChartData = (sales: Sale[]) => {
+    const now = new Date()
+    let data: any[] = []
+
+    switch (period) {
+      case "today":
+        for (let i = 0; i < 24; i++) {
+          const hourSales = sales.filter((s: Sale) => {
+            const saleDate = new Date(s.createdAt)
+            return saleDate.getHours() === i && saleDate.toDateString() === now.toDateString()
+          })
+          data.push({
+            name: `${i}:00`,
+            revenue: hourSales.reduce((sum: number, s: Sale) => sum + s.total, 0),
+            orders: hourSales.length,
+          })
+        }
+        break
+      case "week":
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date()
+          date.setDate(date.getDate() - i)
+          const daySales = sales.filter((s: Sale) => {
+            const saleDate = new Date(s.createdAt)
+            return saleDate.toDateString() === date.toDateString()
+          })
+          data.push({
+            name: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][date.getDay()],
+            revenue: daySales.reduce((sum: number, s: Sale) => sum + s.total, 0),
+            orders: daySales.length,
+          })
+        }
+        break
+      case "month":
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+        for (let i = 0; i < daysInMonth; i++) {
+          const date = new Date(now.getFullYear(), now.getMonth(), i + 1)
+          const daySales = sales.filter((s: Sale) => {
+            const saleDate = new Date(s.createdAt)
+            return saleDate.toDateString() === date.toDateString()
+          })
+          data.push({
+            name: (i + 1).toString(),
+            revenue: daySales.reduce((sum: number, s: Sale) => sum + s.total, 0),
+            orders: daySales.length,
+          })
+        }
+        break
+      case "year":
+        for (let i = 0; i < 12; i++) {
+          const monthSales = sales.filter((s: Sale) => {
+            const saleDate = new Date(s.createdAt)
+            return saleDate.getMonth() === i && saleDate.getFullYear() === now.getFullYear()
+          })
+          data.push({
+            name: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
+            revenue: monthSales.reduce((sum: number, s: Sale) => sum + s.total, 0),
+            orders: monthSales.length,
+          })
+        }
+        break
+    }
+    setChartData(data)
+  }
+
+  useEffect(() => {
+    generateChartData(sales)
+  }, [period, sales])
+
+  const topProducts = useMemo(() => {
+    const productSales: Record<string, { revenue: number; quantity: number }> = {}
+    sales.forEach((sale: Sale) => {
+      sale.items.forEach((item) => {
+        if (!productSales[item.productName]) {
+          productSales[item.productName] = { revenue: 0, quantity: 0 }
+        }
+        productSales[item.productName].revenue += item.total
+        productSales[item.productName].quantity += item.quantity
+      })
+    })
+    return Object.entries(productSales)
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5)
+  }, [sales])
+
+  const categoryData = useMemo(() => {
+    const categorySales: Record<string, number> = {}
+    sales.forEach((sale: Sale) => {
+      sale.items.forEach((item) => {
+        const product = products.find((p: Product) => p.name === item.productName)
+        const category = product?.category?.name || "Other"
+        if (!categorySales[category]) {
+          categorySales[category] = 0
+        }
+        categorySales[category] += item.total
+      })
+    })
+    return Object.entries(categorySales).map(([name, value]) => ({ name, value }))
+  }, [sales, products])
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF()
+    
+    doc.setFontSize(18)
+    doc.text("Sales Report", 105, 20, { align: "center" })
+    doc.setFontSize(12)
+    doc.text(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)}`, 105, 30, { align: "center" })
+    doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy")}`, 105, 40, { align: "center" })
+
+    const tableData = sales.slice(0, 50).map((sale: Sale) => [
+      sale.receiptNumber,
+      sale.customer?.name || "Walk-in",
+      formatDateTime(sale.createdAt),
+      formatCurrency(sale.total),
+      sale.paymentMethod,
+    ])
+
+    autoTable(doc, {
+      startY: 50,
+      head: [["Receipt", "Customer", "Date", "Total", "Payment"]],
+      body: tableData,
+      theme: "grid",
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [99, 102, 241] },
+    })
+
+    const finalY = (doc as any).lastAutoTable.finalY || 50
+    doc.setFontSize(12)
+    doc.text(`Total Revenue: ${formatCurrency(metrics.totalRevenue)}`, 140, finalY + 20)
+    doc.text(`Total Orders: ${metrics.totalOrders}`, 140, finalY + 30)
+
+    doc.save(`sales-report-${format(new Date(), "yyyy-MM-dd")}.pdf`)
+  }
+
+  if (loading) {
+    return (
+      <AppLayout title="Reports">
+        <ReportsSkeleton />
+      </AppLayout>
+    )
+  }
+
+  return (
+    <AppLayout title="Reports">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Reports & Analytics</h1>
+            <p className="text-sm text-muted-foreground mt-1">Track your business performance</p>
+          </div>
+          <div className="flex gap-3">
+            <Select value={period} onValueChange={(v: PeriodType) => setPeriod(v)}>
+              <SelectTrigger className="w-[140px] text-sm">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" className="gap-2 text-sm" onClick={handleExportPDF}>
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+          </div>
+        </div>
+
+        {/* Metrics */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Total Revenue"
+            value={formatCurrency(metrics.totalRevenue)}
+            change={metrics.revenueChange}
+            trend={metrics.revenueChange > 0 ? "up" : "down"}
+            icon={DollarSign}
+            iconClassName="bg-primary/10 text-primary"
+          />
+          <StatCard
+            title="Total Orders"
+            value={metrics.totalOrders.toString()}
+            change={metrics.ordersChange}
+            trend={metrics.ordersChange > 0 ? "up" : "down"}
+            icon={ShoppingCart}
+            iconClassName="bg-info/10 text-info"
+          />
+          <StatCard
+            title="Avg Order Value"
+            value={formatCurrency(metrics.avgOrderValue)}
+            icon={Package}
+            iconClassName="bg-warning/10 text-warning"
+          />
+          <StatCard
+            title="Total Customers"
+            value={metrics.totalCustomers.toString()}
+            icon={Users}
+            iconClassName="bg-success/10 text-success"
+          />
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card className="border-border/60">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <TrendingUp className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Revenue Overview</CardTitle>
+                        <CardDescription className="text-xs">{period.charAt(0).toUpperCase() + period.slice(1)} performance</CardDescription>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-72 w-full -ml-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData}>
+                        <defs>
+                          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2}/>
+                            <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
+                        <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => `₵${value}`} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2.5} fill="url(#colorRevenue)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/60">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center">
+                        <BarChart3 className="h-4 w-4 text-[#8b5cf6]" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Orders Trend</CardTitle>
+                        <CardDescription className="text-xs">Daily order volume</CardDescription>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-72 w-full -ml-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
+                        <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line type="monotone" dataKey="orders" stroke="var(--chart-2)" strokeWidth={2.5} dot={{ fill: "var(--chart-2)", strokeWidth: 2 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="border-border/60">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-success/10 flex items-center justify-center">
+                      <Package className="h-4 w-4 text-success" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Top Selling Products</CardTitle>
+                      <CardDescription className="text-xs">Best performing items</CardDescription>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-72 w-full -ml-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={topProducts} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" opacity={0.5} />
+                      <XAxis type="number" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => `₵${value}`} />
+                      <YAxis dataKey="name" type="category" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
+                      <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: "var(--foreground)", fontWeight: 600 }} formatter={(value) => formatCurrency(value as number)} />
+                      <Bar dataKey="revenue" fill="var(--chart-2)" radius={[0, 4, 4, 0]} barSize={25} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="products">
+            <Card className="border-border/60">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-info/10 flex items-center justify-center">
+                      <Package className="h-4 w-4 text-info" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Product Performance</CardTitle>
+                      <CardDescription className="text-xs">Sales by product</CardDescription>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-96 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={topProducts} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" opacity={0.5} />
+                      <XAxis type="number" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => `₵${value}`} />
+                      <YAxis dataKey="name" type="category" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} width={120} />
+                      <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: "var(--foreground)", fontWeight: 600 }} formatter={(value) => formatCurrency(value as number)} />
+                      <Bar dataKey="revenue" fill="var(--chart-3)" radius={[0, 4, 4, 0]} barSize={25} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="categories">
+            <Card className="border-border/60">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-warning/10 flex items-center justify-center">
+                      <PieChartIcon className="h-4 w-4 text-warning" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Sales by Category</CardTitle>
+                      <CardDescription className="text-xs">Revenue distribution</CardDescription>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-96 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={categoryData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={5}
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {categoryData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={chartTooltipStyle} formatter={(value) => formatCurrency(value as number)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AppLayout>
+  )
+}
+
 
 interface Product {
   _id: string

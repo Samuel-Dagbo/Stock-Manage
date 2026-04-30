@@ -13,10 +13,10 @@ const icons = {
 }
 
 const styles = {
-  default: "bg-background border-border",
-  success: "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400",
-  error: "bg-destructive/10 border-destructive/20 text-destructive dark:text-red-400",
-  warning: "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400",
+  default: "bg-card border-border text-foreground",
+  success: "bg-success/10 border-success/20 text-success",
+  error: "bg-destructive/10 border-destructive/20 text-destructive",
+  warning: "bg-warning/10 border-warning/20 text-warning",
 }
 
 export function Toaster() {
@@ -31,20 +31,20 @@ export function Toaster() {
           <div
             key={toast.id}
             className={cn(
-              "pointer-events-auto flex items-start gap-3 p-4 rounded-lg border shadow-lg animate-in slide-in-from-right-full fade-in duration-300",
+              "pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border shadow-xl animate-in slide-in-from-right-full fade-in duration-300",
               styles[toast.variant]
             )}
           >
             <Icon className="h-5 w-5 shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm">{toast.title}</p>
+              <p className="font-semibold text-sm">{toast.title}</p>
               {toast.description && (
                 <p className="text-sm opacity-80 mt-0.5">{toast.description}</p>
               )}
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="shrink-0 rounded-md p-1 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+              className="shrink-0 rounded-lg p-1 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>

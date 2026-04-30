@@ -30,22 +30,22 @@ export function StatCard({ title, value, change, trend = "neutral", icon: Icon, 
 
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group",
+      "relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 hover:shadow-card-hover transition-all duration-300 group",
       className
     )}>
-      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-50"></div>
       
       <div className="flex items-center justify-between relative z-10">
         <div className={cn(
-          "h-10 w-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110",
-          iconClassName || "bg-primary-subtle text-primary"
+          "flex h-11 w-11 rounded-xl items-center justify-center transition-transform group-hover:scale-110",
+          iconClassName || "bg-primary/10 text-primary"
         )}>
           <Icon className="h-5 w-5" />
         </div>
         
         {change !== undefined && change !== 0 && (
           <div className={cn("flex items-center gap-1 text-xs font-medium", getTrendColor())}>
-            <TrendIcon className="h-3 w-3" />
+            <TrendIcon className="h-4 w-4" />
             <span>{Math.abs(change).toFixed(1)}%</span>
           </div>
         )}

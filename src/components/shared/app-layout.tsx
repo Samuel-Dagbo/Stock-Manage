@@ -19,7 +19,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
     <div className="min-h-screen bg-background">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -28,13 +28,13 @@ export function AppLayout({ children, title }: AppLayoutProps) {
 
       <div
         className={cn(
-          "min-h-screen transition-[margin] duration-200 ease-in-out",
-          sidebarCollapsed ? "lg:ml-[68px]" : "lg:ml-64"
+          "min-h-screen transition-[margin] duration-300 ease-in-out",
+          sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
         )}
       >
         <Header title={title} />
 
-        <main className="p-5 lg:p-7 min-h-[calc(100vh-4rem)] overflow-x-hidden">
+        <main className="p-4 lg:p-6 min-h-[calc(100vh-4rem)] overflow-x-hidden">
           <div className="mx-auto max-w-7xl">
             {children}
           </div>
