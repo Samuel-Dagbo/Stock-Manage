@@ -1,39 +1,11 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { connectDB } from "@/lib/db/connection"
-import { User, Shop } from "@/lib/db/models"
+import { User } from "@/lib/db/models"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
-const DEFAULT_SHOP_SLUG = "default-shop"
-
-async function getOrCreateDefaultShop() {
-  let shop = await Shop.findOne({ slug: DEFAULT_SHOP_SLUG })
-  
-  if (!shop) {
-    shop = await Shop.create({
-      name: "Main Store",
-      slug: DEFAULT_SHOP_SLUG,
-      type: "supermarket",
-      phone: "+233 50 000 0000",
-      email: "store@stockmanage.com",
-      currency: "GHS",
-      locale: "en-GH",
-      taxRate: 15,
-      isActive: true,
-      receiptSettings: {
-        showLogo: true,
-        showAddress: true,
-        showPhone: true,
-        footerMessage: "Thank you for your business!",
-        terms: "No refunds on opened items",
-      },
-    })
-  }
-  
-  return shop
-}
-
 export async function POST(request: Request) {
+  // Rate limiting
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ||
     request.headers.get("x-real-ip") ||
     "unknown"
@@ -54,12 +26,23 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json()
+    // Parse request body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid request body" },
+        { status: 400, headers }
+      )
+    }
+
     const { name, email, phone, password } = body
 
+    // Validate
     if (!name || !email || !password) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "Name, email, and password are required" },
         { status: 400, headers }
       )
     }
@@ -67,7 +50,7 @@ export async function POST(request: Request) {
     // Connect to database
     await connectDB()
 
-    // Check existing user
+    // Check if email exists
     const existingUser = await User.findOne({ email: email.toLowerCase() })
     if (existingUser) {
       return NextResponse.json(
@@ -76,20 +59,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get or create shop
-    let shop
-    try {
-      shop = await getOrCreateDefaultShop()
-    } catch (shopError) {
-      console.error("Shop error:", shopError)
-      // Continue without shop if it fails
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12)
-
     // Create user
-    const userData: any = {
+    const hashedPassword = await bcrypt.hash(password, 12)
+    
+    const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password: hashedPassword,
@@ -97,14 +70,7 @@ export async function POST(request: Request) {
       role: "pending",
       isActive: true,
       isApproved: false,
-    }
-
-    // Add shop if available
-    if (shop && shop._id) {
-      userData.shop = shop._id
-    }
-
-    await User.create(userData)
+    })
 
     return NextResponse.json(
       { success: true, message: "Account created. Waiting for admin approval." },
@@ -113,7 +79,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Registration error:", error)
     return NextResponse.json(
-      { error: "Registration failed. Please try again." },
+      { error: "Unable to create account. Please try again." },
       { status: 500, headers }
     )
   }
