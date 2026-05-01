@@ -244,7 +244,7 @@ export function Sidebar() {
     <>
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden animate-fade-in"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -253,8 +253,10 @@ export function Sidebar() {
         "fixed left-0 top-0 z-50 h-screen flex flex-col",
         "bg-card/95 dark:bg-card/80 backdrop-blur-xl border-r border-border/30",
         "transition-all duration-300 ease-out",
+        isMobile ? "translate-x-0" : "",
         sidebarWidth,
         !isMobile && sidebarCollapsed && "lg:w-[72px]",
+        isMobile && !sidebarOpen && "-translate-x-full"
       )}>
         <div className={cn(
           "flex h-16 items-center border-b border-border/30 px-4 bg-card/50",
@@ -280,9 +282,27 @@ export function Sidebar() {
           {isMobile && (
             <button
               onClick={() => setSidebarOpen(false)}
-              className="ml-auto p-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
             >
               <X className="h-5 w-5" />
+            </button>
+          )}
+          {!isMobile && sidebarCollapsed && (
+            <button
+              onClick={() => setSidebarCollapsed(false)}
+              className="p-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              title="Expand sidebar"
+            >
+              <PanelLeft className="h-[18px] w-[18px]" />
+            </button>
+          )}
+          {!isMobile && !sidebarCollapsed && (
+            <button
+              onClick={() => setSidebarCollapsed(true)}
+              className="p-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              title="Collapse sidebar"
+            >
+              <PanelLeftClose className="h-[18px] w-[18px]" />
             </button>
           )}
         </div>

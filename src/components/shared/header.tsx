@@ -212,7 +212,9 @@ export function Header({ title }: HeaderProps) {
           variant="ghost"
           size="icon"
           className="lg:hidden h-9 w-9 rounded-lg"
-          onClick={() => setSidebarOpen(true)}
+          onClick={() => {
+            useUIStore.getState().setSidebarOpen(true)
+          }}
         >
           <Menu className="h-5 w-5" />
         </Button>
