@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AppLayout } from "@/components/shared/app-layout"
-import { StatCard } from "@/components/shared/stat-card"
 import { EmptyState } from "@/components/shared/empty-state"
 import {
   TrendingUp,
@@ -304,7 +303,7 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold tracking-tight">Welcome back</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Welcome back</h2>
             <p className="text-sm text-muted-foreground mt-1">
               Here&apos;s what&apos;s happening with your store today.
             </p>
@@ -317,7 +316,7 @@ export default function DashboardPage() {
               </Button>
             </Link>
             <Link href="/pos">
-              <Button size="sm" className="gap-2">
+              <Button size="sm" className="gap-2 shadow-glow hover:shadow-glow-soft">
                 <Zap className="h-4 w-4" />
                 New Sale
               </Button>
@@ -326,76 +325,84 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
+            
             <div className="flex items-center justify-between relative z-10">
-              <div className="h-10 w-10 rounded-lg bg-primary-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
-                <DollarSign className="h-5 w-5 text-primary" />
+              <div className="h-12 w-12 rounded-xl bg-primary-subtle flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <DollarSign className="h-6 w-6 text-primary" />
               </div>
               {data.revenueChange !== 0 && (
-                <Badge variant={data.revenueChange > 0 ? "success" : "destructive"} className="text-xs">
+                <Badge variant={data.revenueChange > 0 ? "success" : "destructive"} className="text-xs shadow-sm">
                   {data.revenueChange > 0 ? "+" : ""}{data.revenueChange.toFixed(1)}%
                 </Badge>
               )}
             </div>
             <div className="mt-4">
               <p className="text-sm text-muted-foreground">Today&apos;s Revenue</p>
-              <p className="text-2xl font-bold mt-1 tracking-tight">{formatCurrency(data.revenue)}</p>
+              <p className="text-3xl font-bold mt-1 tracking-tight">{formatCurrency(data.revenue)}</p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-info/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-info/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-info/5 rounded-full blur-2xl" />
+            
             <div className="flex items-center justify-between relative z-10">
-              <div className="h-10 w-10 rounded-lg bg-info-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
-                <ShoppingCart className="h-5 w-5 text-info" />
+              <div className="h-12 w-12 rounded-xl bg-info-subtle flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <ShoppingCart className="h-6 w-6 text-info" />
               </div>
               {data.ordersChange !== 0 && (
-                <Badge variant={data.ordersChange > 0 ? "success" : "destructive"} className="text-xs">
+                <Badge variant={data.ordersChange > 0 ? "success" : "destructive"} className="text-xs shadow-sm">
                   {data.ordersChange > 0 ? "+" : ""}{data.ordersChange.toFixed(1)}%
                 </Badge>
               )}
             </div>
             <div className="mt-4">
               <p className="text-sm text-muted-foreground">Orders Today</p>
-              <p className="text-2xl font-bold mt-1 tracking-tight">{data.orders}</p>
+              <p className="text-3xl font-bold mt-1 tracking-tight">{data.orders}</p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-warning/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-warning/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-warning/5 rounded-full blur-2xl" />
+            
             <div className="flex items-center justify-between relative z-10">
-              <div className="h-10 w-10 rounded-lg bg-warning-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Package className="h-5 w-5 text-warning" />
+              <div className="h-12 w-12 rounded-xl bg-warning-subtle flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Package className="h-6 w-6 text-warning" />
               </div>
             </div>
             <div className="mt-4">
               <p className="text-sm text-muted-foreground">Total Products</p>
-              <p className="text-2xl font-bold mt-1 tracking-tight">{data.products}</p>
+              <p className="text-3xl font-bold mt-1 tracking-tight">{data.products}</p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-5 hover:shadow-card-hover transition-all duration-300 group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#8b5cf6]/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#8b5cf6]/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-[#8b5cf6]/5 rounded-full blur-2xl" />
+            
             <div className="flex items-center justify-between relative z-10">
-              <div className="h-10 w-10 rounded-lg bg-[#8b5cf6]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Users className="h-5 w-5 text-[#8b5cf6]" />
+              <div className="h-12 w-12 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Users className="h-6 w-6 text-[#8b5cf6]" />
               </div>
             </div>
             <div className="mt-4">
               <p className="text-sm text-muted-foreground">Total Customers</p>
-              <p className="text-2xl font-bold mt-1 tracking-tight">{data.customers}</p>
+              <p className="text-3xl font-bold mt-1 tracking-tight">{data.customers}</p>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="border-border/60">
-            <CardHeader className="pb-3">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-primary-subtle flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-primary" />
+                  <div className="h-10 w-10 rounded-xl bg-primary-subtle flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <CardTitle className="text-base">Revenue Overview</CardTitle>
@@ -405,12 +412,12 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="h-72 w-full -ml-2">
+              <div className="h-80 w-full -ml-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.chartData.length > 0 ? data.chartData : [{ name: "No Data", revenue: 0, orders: 0 }]}>
                     <defs>
                       <linearGradient id="colorRevenueNew" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2}/>
+                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.25}/>
                         <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
@@ -431,12 +438,12 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/60">
-            <CardHeader className="pb-3">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-[#8b5cf6]/10 flex items-center justify-center">
-                    <Target className="h-4 w-4 text-[#8b5cf6]" />
+                  <div className="h-10 w-10 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center">
+                    <Target className="h-5 w-5 text-[#8b5cf6]" />
                   </div>
                   <div>
                     <CardTitle className="text-base">Top Products</CardTitle>
@@ -452,7 +459,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               {data.topProducts.length === 0 ? (
-                <div className="h-72 flex items-center justify-center">
+                <div className="h-80 flex items-center justify-center">
                   <EmptyState
                     icon={Package}
                     title="No sales data yet"
@@ -460,14 +467,14 @@ export default function DashboardPage() {
                   />
                 </div>
               ) : (
-                <div className="h-72 w-full -ml-2">
+                <div className="h-80 w-full -ml-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.topProducts} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" opacity={0.5} />
                       <XAxis type="number" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(value) => `₵${value}`} />
                       <YAxis dataKey="name" type="category" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
                       <Tooltip contentStyle={chartTooltipStyle} labelStyle={{ color: "var(--foreground)", fontWeight: 600 }} formatter={(value) => formatCurrency(value as number)} />
-                      <Bar dataKey="revenue" fill="var(--chart-2)" radius={[0, 4, 4, 0]} barSize={20} />
+                      <Bar dataKey="revenue" fill="var(--chart-2)" radius={[0, 6, 6, 0]} barSize={24} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -476,13 +483,13 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="border-border/60">
-            <CardHeader className="pb-3">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-warning-subtle flex items-center justify-center">
-                    <AlertTriangle className="h-4 w-4 text-warning" />
+                  <div className="h-10 w-10 rounded-xl bg-warning-subtle flex items-center justify-center">
+                    <AlertTriangle className="h-5 w-5 text-warning" />
                   </div>
                   <div>
                     <CardTitle className="text-base">Low Stock Alerts</CardTitle>
@@ -498,7 +505,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               {data.lowStockItems.length === 0 ? (
-                <div className="h-40 flex items-center justify-center">
+                <div className="h-48 flex items-center justify-center">
                   <EmptyState
                     icon={TrendingUp}
                     title="All stock levels healthy"
@@ -510,14 +517,14 @@ export default function DashboardPage() {
                   {data.lowStockItems.slice(0, 4).map((item, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                      className="flex items-center justify-between p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-lg bg-warning-subtle flex items-center justify-center">
-                          <Package className="h-4 w-4 text-warning" />
+                      <div className="flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-xl bg-warning-subtle flex items-center justify-center">
+                          <Package className="h-5 w-5 text-warning" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{item.name}</p>
+                          <p className="font-medium">{item.name}</p>
                           <p className="text-xs text-muted-foreground">Reorder at {item.reorder}+ units</p>
                         </div>
                       </div>
@@ -525,7 +532,7 @@ export default function DashboardPage() {
                     </div>
                   ))}
                   {data.lowStockItems.length > 4 && (
-                    <Link href="/inventory" className="block pt-1">
+                    <Link href="/inventory" className="block pt-2">
                       <Button variant="outline" size="sm" className="w-full text-xs gap-2">
                         View {data.lowStockItems.length - 4} more items
                         <ArrowRight className="h-3 w-3" />
@@ -537,12 +544,12 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/60">
-            <CardHeader className="pb-3">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-info-subtle flex items-center justify-center">
-                    <CreditCard className="h-4 w-4 text-info" />
+                  <div className="h-10 w-10 rounded-xl bg-info-subtle flex items-center justify-center">
+                    <CreditCard className="h-5 w-5 text-info" />
                   </div>
                   <div>
                     <CardTitle className="text-base">Payment Methods</CardTitle>
@@ -553,7 +560,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               {data.paymentBreakdown.length === 0 ? (
-                <div className="h-40 flex items-center justify-center">
+                <div className="h-48 flex items-center justify-center">
                   <EmptyState
                     icon={CreditCard}
                     title="No payment data yet"
@@ -561,14 +568,14 @@ export default function DashboardPage() {
                   />
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {data.paymentBreakdown.map((method, i) => (
                     <div key={i} className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{method.name}</span>
-                        <span className="text-sm font-semibold">{method.value}%</span>
+                        <span className="font-medium">{method.name}</span>
+                        <span className="font-bold">{method.value}%</span>
                       </div>
-                      <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-3 rounded-full bg-secondary overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${method.value}%`, backgroundColor: method.color }}
@@ -582,12 +589,12 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <Card className="border-border/60">
-          <CardHeader className="pb-3">
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-success-subtle flex items-center justify-center">
-                  <Receipt className="h-4 w-4 text-success" />
+                <div className="h-10 w-10 rounded-xl bg-success-subtle flex items-center justify-center">
+                  <Receipt className="h-5 w-5 text-success" />
                 </div>
                 <div>
                   <CardTitle className="text-base">Recent Transactions</CardTitle>
@@ -603,7 +610,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {data.recentSales.length === 0 ? (
-              <div className="h-40 flex items-center justify-center">
+              <div className="h-48 flex items-center justify-center">
                 <EmptyState
                   icon={Receipt}
                   title="No recent transactions"
@@ -619,23 +626,23 @@ export default function DashboardPage() {
                 />
               </div>
             ) : (
-              <div className="divide-y divide-border/60">
+              <div className="divide-y divide-border/30">
                 {data.recentSales.map((transaction, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between py-4 first:pt-0 last:pb-0 hover:bg-muted/30 transition-colors px-2 -mx-2 rounded-lg"
+                    className="flex items-center justify-between py-4 first:pt-0 last:pb-0 hover:bg-secondary/30 transition-colors px-3 -mx-3 rounded-xl"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-lg bg-primary-subtle flex items-center justify-center">
-                        <ShoppingCart className="h-4 w-4 text-primary" />
+                      <div className="h-12 w-12 rounded-xl bg-primary-subtle flex items-center justify-center">
+                        <ShoppingCart className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold font-mono">{transaction.receiptNumber}</p>
-                        <p className="text-xs text-muted-foreground">{transaction.customer}</p>
+                        <p className="font-semibold font-mono">{transaction.receiptNumber}</p>
+                        <p className="text-sm text-muted-foreground">{transaction.customer}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold">{formatCurrency(transaction.total)}</p>
+                      <p className="font-bold">{formatCurrency(transaction.total)}</p>
                       <Badge variant="success" className="text-[10px] mt-1">{transaction.status}</Badge>
                     </div>
                   </div>

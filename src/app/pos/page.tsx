@@ -164,7 +164,7 @@ export default function POSPage() {
   return (
     <AppLayout title="POS">
       <div className="flex flex-col lg:flex-row gap-4 min-h-[calc(100vh-8rem)]">
-        <div className={cn("flex-1 flex flex-col min-h-0 overflow-hidden", showCart && "hidden lg:flex")}>
+        <div className={cn("flex-1 flex flex-col min-h-0", showCart && "hidden lg:flex")}>
           <Card className="flex-1 flex flex-col overflow-hidden">
             <CardHeader className="pb-3 space-y-4 shrink-0">
               <div className="relative">
@@ -285,8 +285,8 @@ export default function POSPage() {
           </Card>
         </div>
 
-        <div className="hidden lg:flex w-full xl:max-w-[380px] flex-col gap-4 shrink-0">
-          <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="hidden lg:flex w-full xl:max-w-[380px] flex-col gap-4">
+          <Card className="flex flex-col min-h-0">
             <CardHeader className="pb-3 shrink-0">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export default function POSPage() {
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden">
+          <Card className="shrink-0">
             <CardContent className="p-4 space-y-3">
               <div className="space-y-1.5">
                 <div className="flex justify-between text-[13px]">

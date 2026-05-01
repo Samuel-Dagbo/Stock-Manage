@@ -28,7 +28,7 @@ const isServer = typeof window === "undefined"
 export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
-      sidebarOpen: true,
+      sidebarOpen: false,
       sidebarCollapsed: false,
       theme: "system",
       commandPaletteOpen: false,
