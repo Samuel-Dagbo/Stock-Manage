@@ -6,7 +6,7 @@ import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
 const DEFAULT_SHOP_SLUG = "default-shop"
 
-async function getOrCreateDefaultShop(): Promise<typeof Shop.prototype> {
+async function getOrCreateDefaultShop() {
   let shop = await Shop.findOne({ slug: DEFAULT_SHOP_SLUG })
   
   if (!shop) {
@@ -59,13 +59,15 @@ export async function POST(request: Request) {
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "All fields are required" },
         { status: 400, headers }
       )
     }
 
+    // Connect to database
     await connectDB()
 
+    // Check existing user
     const existingUser = await User.findOne({ email: email.toLowerCase() })
     if (existingUser) {
       return NextResponse.json(
@@ -74,20 +76,35 @@ export async function POST(request: Request) {
       )
     }
 
-    const shop = await getOrCreateDefaultShop()
+    // Get or create shop
+    let shop
+    try {
+      shop = await getOrCreateDefaultShop()
+    } catch (shopError) {
+      console.error("Shop error:", shopError)
+      // Continue without shop if it fails
+    }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    await User.create({
-      name,
-      email: email.toLowerCase(),
+    // Create user
+    const userData: any = {
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password: hashedPassword,
-      phone: phone || "",
+      phone: phone?.trim() || "",
       role: "pending",
-      shop: shop._id,
       isActive: true,
       isApproved: false,
-    })
+    }
+
+    // Add shop if available
+    if (shop && shop._id) {
+      userData.shop = shop._id
+    }
+
+    await User.create(userData)
 
     return NextResponse.json(
       { success: true, message: "Account created. Waiting for admin approval." },
@@ -96,7 +113,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Registration error:", error)
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: "Registration failed. Please try again." },
       { status: 500, headers }
     )
   }
