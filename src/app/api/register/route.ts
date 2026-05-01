@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim()
 
     // Check if email exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() })
+    const existingUser = await User.findOne({ email: normalizedEmail })
     if (existingUser) {
       return NextResponse.json(
         { error: "Email already registered" },
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     
     const user = await User.create({
       name: name.trim(),
-      email: email.toLowerCase().trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       phone: phone?.trim() || "",
       role: role,
