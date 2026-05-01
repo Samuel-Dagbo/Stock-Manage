@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
     await connectDB()
 
-    const categories = await Category.find({ shop: session.user.shop })
+    const categories = await Category.find({})
       .sort({ name: 1 })
       .lean()
 

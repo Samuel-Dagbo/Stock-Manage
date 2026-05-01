@@ -39,7 +39,8 @@ export async function GET(request: Request) {
 
     await connectDB()
 
-    const query: Record<string, unknown> = { shop: session.user.shop }
+    // Get products without shop filter
+    let query: Record<string, unknown> = {}
 
     if (search) {
       query.$or = [
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
         .limit(limit)
         .lean(),
       Product.countDocuments(query),
-      Category.find({ shop: session.user.shop }).sort({ name: 1 }).lean(),
+      Category.find({}).sort({ name: 1 }).lean(),
     ])
 
     const formattedProducts = products.map((p: any) => ({

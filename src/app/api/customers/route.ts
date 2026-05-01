@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     await connectDB()
 
-    const query: Record<string, unknown> = { shop: session.user.shop }
+    const query: Record<string, unknown> = {}
     
     if (search) {
       query.$or = [
