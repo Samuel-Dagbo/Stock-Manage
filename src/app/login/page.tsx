@@ -37,6 +37,35 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
 
+    // Check if user exists and is approved before trying signIn
+    try {
+      const checkRes = await fetch("/api/auth/check-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
+      })
+      
+      const checkData = await checkRes.json()
+      
+      if (!checkRes.ok) {
+        if (checkData.status === "pending") {
+          router.push("/pending")
+          setLoading(false)
+          return
+        }
+        if (checkData.status === "inactive") {
+          setError("Your account has been deactivated. Contact admin.")
+          setLoading(false)
+          return
+        }
+        setError(checkData.error || "Invalid email or password")
+        setLoading(false)
+        return
+      }
+    } catch (err) {
+      // Fall back to normal signIn if API fails
+    }
+
     try {
       const result = await signIn("credentials", {
         email: formData.email,
