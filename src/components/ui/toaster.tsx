@@ -54,24 +54,3 @@ export function Toaster() {
     </div>
   )
 }
-
-export function useToast() {
-  const { addToast, removeToast } = useUIStore()
-
-  const toast = {
-    success: (title: string, description?: string) => {
-      addToast({ title, description, variant: "success" })
-    },
-    error: (title: string, description?: string) => {
-      addToast({ title, description, variant: "error" })
-    },
-    warning: (title: string, description?: string) => {
-      addToast({ title, description, variant: "warning" })
-    },
-    default: (title: string, description?: string) => {
-      addToast({ title, description, variant: "default" })
-    },
-  }
-
-  return { toast, dismiss: removeToast }
-}

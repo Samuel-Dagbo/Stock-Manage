@@ -52,10 +52,11 @@ export default function RegisterPage() {
         return
       }
 
+      // Success - redirect to pending page
       router.push("/pending")
     } catch (error) {
       console.error("Registration error:", error)
-      toast.error("Something went wrong")
+      toast.error("Something went wrong. Please try again.")
       setLoading(false)
     }
   }
