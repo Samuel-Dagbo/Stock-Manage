@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -36,6 +37,14 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError("")
+
+    // Client-side password validation
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters")
+      setLoading(false)
+      return
+    }
 
     try {
       const response = await fetch("/api/register", {
@@ -47,20 +56,22 @@ export default function RegisterPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data.error || "Registration failed")
+        setError(data.error || "Registration failed")
         setLoading(false)
         return
       }
 
-      // If admin, go to dashboard, otherwise pending page
+      // Admin goes to login, others wait for approval
       if (data.role === "admin") {
-        router.push("/dashboard")
+        toast.success("Welcome! Your admin account is ready.")
+        router.push("/login?registered=true")
       } else {
+        toast.success("Account created! Waiting for admin approval.")
         router.push("/pending")
       }
-    } catch (error) {
-      console.error("Registration error:", error)
-      toast.error("Something went wrong. Please try again.")
+    } catch (err) {
+      console.error("Registration error:", err)
+      setError("Something went wrong. Please try again.")
       setLoading(false)
     }
   }
@@ -99,9 +110,19 @@ export default function RegisterPage() {
               <CardDescription className="text-base">
                 Start your 14-day free trial
               </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
+</CardHeader>
+              <CardContent className="space-y-4">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-destructive text-sm"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+                
+                <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
                     Your Name

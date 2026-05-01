@@ -46,8 +46,18 @@ export async function POST(request: Request) {
       )
     }
 
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: "Password must be at least 6 characters" },
+        { status: 400, headers }
+      )
+    }
+
     // Connect to database
     await connectDB()
+
+    // Normalize email
+    const normalizedEmail = email.toLowerCase().trim()
 
     // Check if email exists
     const existingUser = await User.findOne({ email: email.toLowerCase() })
