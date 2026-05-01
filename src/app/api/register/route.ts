@@ -26,7 +26,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Parse request body
     let body
     try {
       body = await request.json()
@@ -59,6 +58,11 @@ export async function POST(request: Request) {
       )
     }
 
+    // Check if any users exist - first user becomes admin
+    const userCount = await User.countDocuments()
+    const role = userCount === 0 ? "admin" : "pending"
+    const isApproved = userCount === 0
+
     // Create user
     const hashedPassword = await bcrypt.hash(password, 12)
     
@@ -67,13 +71,17 @@ export async function POST(request: Request) {
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       phone: phone?.trim() || "",
-      role: "pending",
+      role: role,
       isActive: true,
-      isApproved: false,
+      isApproved: isApproved,
     })
 
+    const message = userCount === 0 
+      ? "Admin account created. You can now access the dashboard."
+      : "Account created. Waiting for admin approval."
+
     return NextResponse.json(
-      { success: true, message: "Account created. Waiting for admin approval." },
+      { success: true, message, role: role },
       { headers }
     )
   } catch (error) {

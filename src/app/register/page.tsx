@@ -52,8 +52,12 @@ export default function RegisterPage() {
         return
       }
 
-      // Success - redirect to pending page
-      router.push("/pending")
+      // If admin, go to dashboard, otherwise pending page
+      if (data.role === "admin") {
+        router.push("/dashboard")
+      } else {
+        router.push("/pending")
+      }
     } catch (error) {
       console.error("Registration error:", error)
       toast.error("Something went wrong. Please try again.")
