@@ -161,11 +161,10 @@ export default function RegisterPage() {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="+233 123 456 789"
+                    placeholder="0XX XXX XXXX"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="h-11 rounded-xl border-border/60 bg-background px-4"
-                    required
                     disabled={loading}
                   />
                 </div>
