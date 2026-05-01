@@ -204,8 +204,8 @@ export function Header({ title }: HeaderProps) {
 
   return (
     <header className={cn(
-      "sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/50 bg-background/80 backdrop-blur-xl px-4 lg:px-6 transition-all duration-200",
-      scrolled && "bg-background/95 shadow-sm"
+      "sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/30 bg-background/60 backdrop-blur-xl px-4 lg:px-6 transition-all duration-200",
+      scrolled && "bg-background/90 shadow-sm"
     )}>
       <div className="flex items-center gap-4">
         <Button

@@ -325,8 +325,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm p-6 hover:bg-card/80 hover:shadow-lg hover:border-border/40 transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
             
             <div className="flex items-center justify-between relative z-10">
@@ -345,7 +345,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
+          <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-info/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-info/5 rounded-full blur-2xl" />
             
@@ -365,7 +365,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
+          <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-warning/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-warning/5 rounded-full blur-2xl" />
             
@@ -380,7 +380,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
+          <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm p-6 hover:bg-card hover:shadow-xl hover:border-border transition-all duration-300 group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#8b5cf6]/15 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-[#8b5cf6]/5 rounded-full blur-2xl" />
             
@@ -397,7 +397,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <Card className="border-border/30 bg-card/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -438,7 +438,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <Card className="border-border/30 bg-card/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -484,7 +484,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <Card className="border-border/30 bg-card/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -544,7 +544,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <Card className="border-border/30 bg-card/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -589,7 +589,7 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+        <Card className="border-border/30 bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

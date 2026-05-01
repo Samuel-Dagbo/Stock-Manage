@@ -244,22 +244,20 @@ export function Sidebar() {
     <>
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden animate-fade-in"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}
       
       <aside className={cn(
         "fixed left-0 top-0 z-50 h-screen flex flex-col",
-        "bg-card/95 backdrop-blur-xl border-r border-border/50",
+        "bg-card/95 dark:bg-card/80 backdrop-blur-xl border-r border-border/30",
         "transition-all duration-300 ease-out",
         sidebarWidth,
-        isMobile ? "translate-x-0" : "translate-x-0",
         !isMobile && sidebarCollapsed && "lg:w-[72px]",
-        "dark:bg-card/95"
       )}>
         <div className={cn(
-          "flex h-16 items-center border-b border-border/50 px-4",
+          "flex h-16 items-center border-b border-border/30 px-4 bg-card/50",
           isMobile || sidebarCollapsed ? "justify-center px-2" : "justify-between px-4"
         )}>
           {(!sidebarCollapsed || isMobile) && (

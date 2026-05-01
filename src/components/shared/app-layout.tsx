@@ -16,10 +16,10 @@ export function AppLayout({ children, title }: AppLayoutProps) {
   const { sidebarCollapsed, sidebarOpen, setSidebarOpen } = useUIStore()
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background/50">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden animate-fade-in"
+          className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm lg:hidden animate-fade-in"
           onClick={() => setSidebarOpen(false)}
         />
       )}

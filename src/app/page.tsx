@@ -132,13 +132,13 @@ export default function LandingPage() {
         <div className="absolute inset-0 gradient-hero" />
         <div className="absolute inset-0 pattern-dots opacity-30" />
         
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-soft" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-info/15 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-info/10 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '2s' }} />
         
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-border/50 shadow-sm mb-6 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur-xl border border-border/30 shadow-sm mb-6 animate-fade-in">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -183,17 +183,17 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-20 max-w-5xl mx-auto animate-scale-in" style={{ animationDelay: '0.4s' }}>
-            <div className="relative rounded-2xl border border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="relative rounded-2xl border border-border/30 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
               <div className="absolute inset-0 pattern-grid opacity-30" />
               
-              <div className="relative flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/30">
+              <div className="relative flex items-center gap-2 px-4 py-3 border-b border-border/30 bg-card/50">
                 <div className="flex items-center gap-1.5">
                   <div className="h-3 w-3 rounded-full bg-red-400/80" />
                   <div className="h-3 w-3 rounded-full bg-yellow-400/80" />
                   <div className="h-3 w-3 rounded-full bg-green-400/80" />
                 </div>
-                <div className="ml-4 flex items-center gap-2 px-3 py-1 rounded-md bg-background/50">
+                <div className="ml-4 flex items-center gap-2 px-3 py-1 rounded-md bg-secondary/50">
                   <span className="text-xs text-muted-foreground font-mono">stockmanage.app/dashboard</span>
                 </div>
               </div>
