@@ -52,7 +52,7 @@ export default function RegisterPage() {
         return
       }
 
-      router.push("/login?registered=true")
+      router.push("/pending")
     } catch (error) {
       console.error("Registration error:", error)
       toast.error("Something went wrong")
@@ -99,11 +99,11 @@ export default function RegisterPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium">
-                    Business Name
+                    Your Name
                   </Label>
                   <Input
                     id="name"
-                    placeholder="Your Business Name"
+                    placeholder="Enter your full name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="h-11 rounded-xl border-border/60 bg-background px-4"
