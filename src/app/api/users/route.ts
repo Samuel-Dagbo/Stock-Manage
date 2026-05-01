@@ -21,9 +21,7 @@ export async function GET() {
       role: "pending",
     }).select("name email phone createdAt")
 
-    const allUsers = await User.find({
-      _id: { $ne: session.user.id },
-    }).select("name email role isActive isApproved createdAt phone")
+    const allUsers = await User.find({}).select("name email role isActive isApproved createdAt phone")
 
     return NextResponse.json({
       pending: pendingUsers,
